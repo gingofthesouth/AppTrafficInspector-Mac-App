@@ -1,0 +1,508 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 54;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		17DBCF172E9F35B300F5C257 /* AppTrafficStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF152E9F35B300F5C257 /* AppTrafficStore.swift */; };
+		17DBCF182E9F35B300F5C257 /* AppTrafficRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF142E9F35B300F5C257 /* AppTrafficRootView.swift */; };
+		17DBCF1A2E9F57D700F5C257 /* JSONTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF192E9F57D700F5C257 /* JSONTextView.swift */; };
+		17DBCF1C2E9F652B00F5C257 /* DetailTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF1B2E9F652B00F5C257 /* DetailTab.swift */; };
+		17DBCF1E2E9F654700F5C257 /* PacketDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF1D2E9F654700F5C257 /* PacketDetailView.swift */; };
+		17DBCF202E9F656F00F5C257 /* EmptyBodyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF1F2E9F656F00F5C257 /* EmptyBodyView.swift */; };
+		17DBCF222E9F657600F5C257 /* FilterEmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF212E9F657600F5C257 /* FilterEmptyView.swift */; };
+		17DBCF242E9F657E00F5C257 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF232E9F657E00F5C257 /* EmptyStateView.swift */; };
+		17DBCF262E9F65C700F5C257 /* JSONHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF252E9F65C700F5C257 /* JSONHighlighter.swift */; };
+		17EAB4322F3FDE02001C56F8 /* NetworkInterfaceDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17EAB4312F3FDE02001C56F8 /* NetworkInterfaceDetector.swift */; };
+		17EAB4332F3FDE02001C56F9 /* BonjourSingleInterfaceRegistrar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17EAB4342F3FDE02001C56F9 /* BonjourSingleInterfaceRegistrar.swift */; };
+		A1B2C3D42EA1000000F5C257 /* AppTrafficInspectorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D32EA1000000F5C257 /* AppTrafficInspectorApp.swift */; };
+		A1B2C3D62EA1000A00F5C257 /* AppTrafficMenuCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D52EA1000A00F5C257 /* AppTrafficMenuCommands.swift */; };
+		BC73DFAE215BFB18002E533B /* AppTrafficPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC73DFAD215BFB18002E533B /* AppTrafficPublisher.swift */; };
+		BC911A422168C00500B755D4 /* NSColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC911A412168C00500B755D4 /* NSColor.swift */; };
+		BCA60B41216201B900B9DCAD /* AppTrafficConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA60B40216201B900B9DCAD /* AppTrafficConfiguration.swift */; };
+		BCBD86E2215916C9009CBEA7 /* AppTrafficController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBD86E1215916C9009CBEA7 /* AppTrafficController.swift */; };
+		BCBD86E4215916E0009CBEA7 /* AppTrafficProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBD86E3215916E0009CBEA7 /* AppTrafficProject.swift */; };
+		BCBD86E62159172B009CBEA7 /* AppTrafficDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBD86E52159172B009CBEA7 /* AppTrafficDevice.swift */; };
+		BCD0E027210F5E0D00CE5C7B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD0E026210F5E0D00CE5C7B /* AppDelegate.swift */; };
+		BCD0E02B210F5E0D00CE5C7B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BCD0E02A210F5E0D00CE5C7B /* Assets.xcassets */; };
+		BCEB9AA0217C94B1008BBF3C /* KeyValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCEB9A9F217C94B1008BBF3C /* KeyValue.swift */; };
+		BCEB9AA2217C94C1008BBF3C /* AppTrafficExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCEB9AA1217C94C1008BBF3C /* AppTrafficExtensions.swift */; };
+		BCEB9AB9217DD653008BBF3C /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCEB9AB8217DD653008BBF3C /* Date.swift */; };
+		BCFC5CBA213C7435004E5995 /* AppTrafficRequestInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCFC5CB9213C7435004E5995 /* AppTrafficRequestInfo.swift */; };
+		BCFC855021384981001EC6D7 /* AppTrafficPacket.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCFC854F21384981001EC6D7 /* AppTrafficPacket.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		17DBCF142E9F35B300F5C257 /* AppTrafficRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficRootView.swift; sourceTree = "<group>"; };
+		17DBCF152E9F35B300F5C257 /* AppTrafficStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficStore.swift; sourceTree = "<group>"; };
+		17DBCF192E9F57D700F5C257 /* JSONTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONTextView.swift; sourceTree = "<group>"; };
+		17DBCF1B2E9F652B00F5C257 /* DetailTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailTab.swift; sourceTree = "<group>"; };
+		17DBCF1D2E9F654700F5C257 /* PacketDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketDetailView.swift; sourceTree = "<group>"; };
+		17DBCF1F2E9F656F00F5C257 /* EmptyBodyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyBodyView.swift; sourceTree = "<group>"; };
+		17DBCF212E9F657600F5C257 /* FilterEmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterEmptyView.swift; sourceTree = "<group>"; };
+		17DBCF232E9F657E00F5C257 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
+		17DBCF252E9F65C700F5C257 /* JSONHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONHighlighter.swift; sourceTree = "<group>"; };
+		17EAB4312F3FDE02001C56F8 /* NetworkInterfaceDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkInterfaceDetector.swift; sourceTree = "<group>"; };
+		17EAB4342F3FDE02001C56F9 /* BonjourSingleInterfaceRegistrar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourSingleInterfaceRegistrar.swift; sourceTree = "<group>"; };
+		A1B2C3D32EA1000000F5C257 /* AppTrafficInspectorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficInspectorApp.swift; sourceTree = "<group>"; };
+		A1B2C3D52EA1000A00F5C257 /* AppTrafficMenuCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficMenuCommands.swift; sourceTree = "<group>"; };
+		BC73DFAD215BFB18002E533B /* AppTrafficPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficPublisher.swift; sourceTree = "<group>"; };
+		BC911A412168C00500B755D4 /* NSColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSColor.swift; sourceTree = "<group>"; };
+		BCA60B40216201B900B9DCAD /* AppTrafficConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficConfiguration.swift; sourceTree = "<group>"; };
+		BCBD86E1215916C9009CBEA7 /* AppTrafficController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficController.swift; sourceTree = "<group>"; };
+		BCBD86E3215916E0009CBEA7 /* AppTrafficProject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficProject.swift; sourceTree = "<group>"; };
+		BCBD86E52159172B009CBEA7 /* AppTrafficDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficDevice.swift; sourceTree = "<group>"; };
+		BCD0E023210F5E0D00CE5C7B /* App Traffic Inspector.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "App Traffic Inspector.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BCD0E026210F5E0D00CE5C7B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		BCD0E02A210F5E0D00CE5C7B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BCD0E02F210F5E0D00CE5C7B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BCD0E030210F5E0D00CE5C7B /* AppTrafficInspector.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AppTrafficInspector.entitlements; sourceTree = "<group>"; };
+		BCEB9A9F217C94B1008BBF3C /* KeyValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyValue.swift; sourceTree = "<group>"; };
+		BCEB9AA1217C94C1008BBF3C /* AppTrafficExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficExtensions.swift; sourceTree = "<group>"; };
+		BCEB9AB8217DD653008BBF3C /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
+		BCFC5CB9213C7435004E5995 /* AppTrafficRequestInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficRequestInfo.swift; sourceTree = "<group>"; };
+		BCFC854F21384981001EC6D7 /* AppTrafficPacket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficPacket.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BCD0E020210F5E0D00CE5C7B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		17123A692F17540A00408BBA /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				BC73DFAD215BFB18002E533B /* AppTrafficPublisher.swift */,
+				17EAB4342F3FDE02001C56F9 /* BonjourSingleInterfaceRegistrar.swift */,
+				BCA60B40216201B900B9DCAD /* AppTrafficConfiguration.swift */,
+				17EAB4312F3FDE02001C56F8 /* NetworkInterfaceDetector.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		17720DE22F174BFA0059D051 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				17DBCF1D2E9F654700F5C257 /* PacketDetailView.swift */,
+				17DBCF1B2E9F652B00F5C257 /* DetailTab.swift */,
+				17DBCF192E9F57D700F5C257 /* JSONTextView.swift */,
+				17DBCF1F2E9F656F00F5C257 /* EmptyBodyView.swift */,
+				17DBCF232E9F657E00F5C257 /* EmptyStateView.swift */,
+				17DBCF212E9F657600F5C257 /* FilterEmptyView.swift */,
+				17DBCF142E9F35B300F5C257 /* AppTrafficRootView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		17720DE32F174C480059D051 /* Utilities and Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				BCEB9AA1217C94C1008BBF3C /* AppTrafficExtensions.swift */,
+				BC911A412168C00500B755D4 /* NSColor.swift */,
+				BCEB9AB8217DD653008BBF3C /* Date.swift */,
+				17DBCF252E9F65C700F5C257 /* JSONHighlighter.swift */,
+			);
+			path = "Utilities and Extensions";
+			sourceTree = "<group>";
+		};
+		BCBD86DF21591550009CBEA7 /* Models and Data Store */ = {
+			isa = PBXGroup;
+			children = (
+				17DBCF152E9F35B300F5C257 /* AppTrafficStore.swift */,
+				BCFC854F21384981001EC6D7 /* AppTrafficPacket.swift */,
+				BCBD86E3215916E0009CBEA7 /* AppTrafficProject.swift */,
+				BCBD86E52159172B009CBEA7 /* AppTrafficDevice.swift */,
+				BCFC5CB9213C7435004E5995 /* AppTrafficRequestInfo.swift */,
+				BCEB9A9F217C94B1008BBF3C /* KeyValue.swift */,
+			);
+			path = "Models and Data Store";
+			sourceTree = "<group>";
+		};
+		BCD0E01A210F5E0D00CE5C7B = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D32EA1000000F5C257 /* AppTrafficInspectorApp.swift */,
+				BCD0E026210F5E0D00CE5C7B /* AppDelegate.swift */,
+				BCBD86E1215916C9009CBEA7 /* AppTrafficController.swift */,
+				17123A692F17540A00408BBA /* Network */,
+				A1B2C3D52EA1000A00F5C257 /* AppTrafficMenuCommands.swift */,
+				BCBD86DF21591550009CBEA7 /* Models and Data Store */,
+				17720DE22F174BFA0059D051 /* Views */,
+				17720DE32F174C480059D051 /* Utilities and Extensions */,
+				BCD0E02A210F5E0D00CE5C7B /* Assets.xcassets */,
+				BCD0E02F210F5E0D00CE5C7B /* Info.plist */,
+				BCD0E030210F5E0D00CE5C7B /* AppTrafficInspector.entitlements */,
+				BCD0E024210F5E0D00CE5C7B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BCD0E024210F5E0D00CE5C7B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BCD0E023210F5E0D00CE5C7B /* App Traffic Inspector.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BCD0E022210F5E0D00CE5C7B /* App Traffic Inspector */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BCD0E049210F5E0D00CE5C7B /* Build configuration list for PBXNativeTarget "App Traffic Inspector" */;
+			buildPhases = (
+				BCD0E01F210F5E0D00CE5C7B /* Sources */,
+				BCD0E020210F5E0D00CE5C7B /* Frameworks */,
+				BCD0E021210F5E0D00CE5C7B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "App Traffic Inspector";
+			packageProductDependencies = (
+			);
+			productName = AppTrafficInspector;
+			productReference = BCD0E023210F5E0D00CE5C7B /* App Traffic Inspector.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BCD0E01B210F5E0D00CE5C7B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastSwiftUpdateCheck = 0920;
+				LastUpgradeCheck = 2620;
+				ORGANIZATIONNAME = "Yagiz Lab";
+				TargetAttributes = {
+					BCD0E022210F5E0D00CE5C7B = {
+						CreatedOnToolsVersion = 9.2;
+					};
+				};
+			};
+			buildConfigurationList = BCD0E01E210F5E0D00CE5C7B /* Build configuration list for PBXProject "AppTrafficInspector" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = BCD0E01A210F5E0D00CE5C7B;
+			packageReferences = (
+			);
+			productRefGroup = BCD0E024210F5E0D00CE5C7B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BCD0E022210F5E0D00CE5C7B /* App Traffic Inspector */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BCD0E021210F5E0D00CE5C7B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BCD0E02B210F5E0D00CE5C7B /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BCD0E01F210F5E0D00CE5C7B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BCEB9AA0217C94B1008BBF3C /* KeyValue.swift in Sources */,
+				17DBCF242E9F657E00F5C257 /* EmptyStateView.swift in Sources */,
+				BCEB9AA2217C94C1008BBF3C /* AppTrafficExtensions.swift in Sources */,
+				BCBD86E2215916C9009CBEA7 /* AppTrafficController.swift in Sources */,
+				BCEB9AB9217DD653008BBF3C /* Date.swift in Sources */,
+				BCFC5CBA213C7435004E5995 /* AppTrafficRequestInfo.swift in Sources */,
+				BCBD86E4215916E0009CBEA7 /* AppTrafficProject.swift in Sources */,
+				17DBCF222E9F657600F5C257 /* FilterEmptyView.swift in Sources */,
+				17DBCF202E9F656F00F5C257 /* EmptyBodyView.swift in Sources */,
+				BC73DFAE215BFB18002E533B /* AppTrafficPublisher.swift in Sources */,
+				17DBCF172E9F35B300F5C257 /* AppTrafficStore.swift in Sources */,
+				17DBCF182E9F35B300F5C257 /* AppTrafficRootView.swift in Sources */,
+				BCA60B41216201B900B9DCAD /* AppTrafficConfiguration.swift in Sources */,
+				17DBCF1C2E9F652B00F5C257 /* DetailTab.swift in Sources */,
+				BC911A422168C00500B755D4 /* NSColor.swift in Sources */,
+				BCFC855021384981001EC6D7 /* AppTrafficPacket.swift in Sources */,
+				17DBCF1A2E9F57D700F5C257 /* JSONTextView.swift in Sources */,
+				17DBCF262E9F65C700F5C257 /* JSONHighlighter.swift in Sources */,
+				BCBD86E62159172B009CBEA7 /* AppTrafficDevice.swift in Sources */,
+				BCD0E027210F5E0D00CE5C7B /* AppDelegate.swift in Sources */,
+				17DBCF1E2E9F654700F5C257 /* PacketDetailView.swift in Sources */,
+				A1B2C3D42EA1000000F5C257 /* AppTrafficInspectorApp.swift in Sources */,
+				17EAB4322F3FDE02001C56F8 /* NetworkInterfaceDetector.swift in Sources */,
+				17EAB4332F3FDE02001C56F9 /* BonjourSingleInterfaceRegistrar.swift in Sources */,
+				A1B2C3D62EA1000A00F5C257 /* AppTrafficMenuCommands.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		BCD0E047210F5E0D00CE5C7B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 2LW4WJ8FX7;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BCD0E048210F5E0D00CE5C7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 2LW4WJ8FX7;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		BCD0E04A210F5E0D00CE5C7B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = AppTrafficInspector.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "App Traffic Inspector";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/usr/lib/system",
+					"\"${TOOLCHAIN_DIR}/usr/lib/swift/${PLATFORM_NAME}\"",
+					/usr/lib/swift,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				OTHER_LDFLAGS = "-lsystem_dnssd";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = nz.ging.AppTrafficInspector;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 4.2;
+			};
+			name = Debug;
+		};
+		BCD0E04B210F5E0D00CE5C7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = AppTrafficInspector.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "App Traffic Inspector";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/usr/lib/system",
+					"\"${TOOLCHAIN_DIR}/usr/lib/swift/${PLATFORM_NAME}\"",
+					/usr/lib/swift,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				OTHER_LDFLAGS = "-lsystem_dnssd";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = nz.ging.AppTrafficInspector;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 4.2;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BCD0E01E210F5E0D00CE5C7B /* Build configuration list for PBXProject "AppTrafficInspector" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BCD0E047210F5E0D00CE5C7B /* Debug */,
+				BCD0E048210F5E0D00CE5C7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BCD0E049210F5E0D00CE5C7B /* Build configuration list for PBXNativeTarget "App Traffic Inspector" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BCD0E04A210F5E0D00CE5C7B /* Debug */,
+				BCD0E04B210F5E0D00CE5C7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BCD0E01B210F5E0D00CE5C7B /* Project object */;
+}
