@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1729C6272F42AD5200E94E4D /* OverviewContentAsync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1729C6262F42AD5200E94E4D /* OverviewContentAsync.swift */; };
+		1729C6292F42AE1900E94E4D /* BodyViewAsync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1729C6282F42AE1900E94E4D /* BodyViewAsync.swift */; };
+		1729C62D2F42B20800E94E4D /* BodyDisplayResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1729C62B2F42B20800E94E4D /* BodyDisplayResult.swift */; };
 		17DBCF172E9F35B300F5C257 /* AppTrafficStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF152E9F35B300F5C257 /* AppTrafficStore.swift */; };
 		17DBCF182E9F35B300F5C257 /* AppTrafficRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF142E9F35B300F5C257 /* AppTrafficRootView.swift */; };
 		17DBCF1A2E9F57D700F5C257 /* JSONTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF192E9F57D700F5C257 /* JSONTextView.swift */; };
@@ -28,6 +31,7 @@
 		BCBD86E62159172B009CBEA7 /* AppTrafficDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBD86E52159172B009CBEA7 /* AppTrafficDevice.swift */; };
 		BCD0E027210F5E0D00CE5C7B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD0E026210F5E0D00CE5C7B /* AppDelegate.swift */; };
 		BCD0E02B210F5E0D00CE5C7B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BCD0E02A210F5E0D00CE5C7B /* Assets.xcassets */; };
+		BCD0E037210F5E0D00CE5C7B /* TrafficRedactorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD0E036210F5E0D00CE5C7B /* TrafficRedactorTests.swift */; };
 		BCEB9AA0217C94B1008BBF3C /* KeyValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCEB9A9F217C94B1008BBF3C /* KeyValue.swift */; };
 		BCEB9AA2217C94C1008BBF3C /* AppTrafficExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCEB9AA1217C94C1008BBF3C /* AppTrafficExtensions.swift */; };
 		BCEB9AB9217DD653008BBF3C /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCEB9AB8217DD653008BBF3C /* Date.swift */; };
@@ -49,10 +53,22 @@
 		MCP00F012E9F35B300F5C26D /* TrafficEventBus.swift in Sources */ = {isa = PBXBuildFile; fileRef = MCP00F002E9F35B300F5C26D /* TrafficEventBus.swift */; };
 		MCP010012E9F35B300F5C26E /* MCPActivityLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = MCP010002E9F35B300F5C26E /* MCPActivityLog.swift */; };
 		MCP011012E9F35B300F5C26F /* MCPConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = MCP011002E9F35B300F5C26F /* MCPConsoleView.swift */; };
-		BCD0E037210F5E0D00CE5C7B /* TrafficRedactorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD0E036210F5E0D00CE5C7B /* TrafficRedactorTests.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		BCD0E03B210F5E0D00CE5C7B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BCD0E01B210F5E0D00CE5C7B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BCD0E022210F5E0D00CE5C7B;
+			remoteInfo = AppTrafficInspector;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		1729C6262F42AD5200E94E4D /* OverviewContentAsync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewContentAsync.swift; sourceTree = "<group>"; };
+		1729C6282F42AE1900E94E4D /* BodyViewAsync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyViewAsync.swift; sourceTree = "<group>"; };
+		1729C62B2F42B20800E94E4D /* BodyDisplayResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyDisplayResult.swift; sourceTree = "<group>"; };
 		17DBCF142E9F35B300F5C257 /* AppTrafficRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficRootView.swift; sourceTree = "<group>"; };
 		17DBCF152E9F35B300F5C257 /* AppTrafficStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficStore.swift; sourceTree = "<group>"; };
 		17DBCF192E9F57D700F5C257 /* JSONTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONTextView.swift; sourceTree = "<group>"; };
@@ -77,6 +93,8 @@
 		BCD0E02A210F5E0D00CE5C7B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BCD0E02F210F5E0D00CE5C7B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BCD0E030210F5E0D00CE5C7B /* AppTrafficInspector.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AppTrafficInspector.entitlements; sourceTree = "<group>"; };
+		BCD0E035210F5E0D00CE5C7B /* AppTrafficInspectorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppTrafficInspectorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BCD0E036210F5E0D00CE5C7B /* TrafficRedactorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrafficRedactorTests.swift; sourceTree = "<group>"; };
 		BCEB9A9F217C94B1008BBF3C /* KeyValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyValue.swift; sourceTree = "<group>"; };
 		BCEB9AA1217C94C1008BBF3C /* AppTrafficExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficExtensions.swift; sourceTree = "<group>"; };
 		BCEB9AB8217DD653008BBF3C /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
@@ -98,8 +116,6 @@
 		MCP00F002E9F35B300F5C26D /* TrafficEventBus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrafficEventBus.swift; sourceTree = "<group>"; };
 		MCP010002E9F35B300F5C26E /* MCPActivityLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPActivityLog.swift; sourceTree = "<group>"; };
 		MCP011002E9F35B300F5C26F /* MCPConsoleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPConsoleView.swift; sourceTree = "<group>"; };
-		BCD0E035210F5E0D00CE5C7B /* AppTrafficInspectorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppTrafficInspectorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		BCD0E036210F5E0D00CE5C7B /* TrafficRedactorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrafficRedactorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,37 +147,13 @@
 			path = Network;
 			sourceTree = "<group>";
 		};
-		MCP000002E9F35B300F5C258 /* MCP */ = {
-			isa = PBXGroup;
-			children = (
-				MCP002002E9F35B300F5C260 /* TrafficRedactor.swift */,
-				MCP003002E9F35B300F5C261 /* MCPHTTPParser.swift */,
-				MCP005002E9F35B300F5C263 /* MCPToolRegistry.swift */,
-				MCP006002E9F35B300F5C264 /* MCPJSONRPCHandler.swift */,
-				MCP007002E9F35B300F5C265 /* MCPServer.swift */,
-				MCP00D002E9F35B300F5C26B /* MCPServerStatus.swift */,
-				MCP00F002E9F35B300F5C26D /* TrafficEventBus.swift */,
-				MCP010002E9F35B300F5C26E /* MCPActivityLog.swift */,
-				MCP00C002E9F35B300F5C26A /* Tools */,
-			);
-			path = MCP;
-			sourceTree = "<group>";
-		};
-		MCP00C002E9F35B300F5C26A /* Tools */ = {
-			isa = PBXGroup;
-			children = (
-				MCP008002E9F35B300F5C266 /* TrafficTools.swift */,
-				MCP009002E9F35B300F5C267 /* ConnectionTools.swift */,
-				MCP00A002E9F35B300F5C268 /* ControlTools.swift */,
-				MCP00B002E9F35B300F5C269 /* DiagnosticTools.swift */,
-			);
-			path = Tools;
-			sourceTree = "<group>";
-		};
 		17720DE22F174BFA0059D051 /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				17DBCF1D2E9F654700F5C257 /* PacketDetailView.swift */,
+				1729C6262F42AD5200E94E4D /* OverviewContentAsync.swift */,
+				1729C6282F42AE1900E94E4D /* BodyViewAsync.swift */,
+				1729C62B2F42B20800E94E4D /* BodyDisplayResult.swift */,
 				17DBCF1B2E9F652B00F5C257 /* DetailTab.swift */,
 				17DBCF192E9F57D700F5C257 /* JSONTextView.swift */,
 				17DBCF1F2E9F656F00F5C257 /* EmptyBodyView.swift */,
@@ -235,6 +227,33 @@
 				BCD0E036210F5E0D00CE5C7B /* TrafficRedactorTests.swift */,
 			);
 			path = AppTrafficInspectorTests;
+			sourceTree = "<group>";
+		};
+		MCP000002E9F35B300F5C258 /* MCP */ = {
+			isa = PBXGroup;
+			children = (
+				MCP002002E9F35B300F5C260 /* TrafficRedactor.swift */,
+				MCP003002E9F35B300F5C261 /* MCPHTTPParser.swift */,
+				MCP005002E9F35B300F5C263 /* MCPToolRegistry.swift */,
+				MCP006002E9F35B300F5C264 /* MCPJSONRPCHandler.swift */,
+				MCP007002E9F35B300F5C265 /* MCPServer.swift */,
+				MCP00D002E9F35B300F5C26B /* MCPServerStatus.swift */,
+				MCP00F002E9F35B300F5C26D /* TrafficEventBus.swift */,
+				MCP010002E9F35B300F5C26E /* MCPActivityLog.swift */,
+				MCP00C002E9F35B300F5C26A /* Tools */,
+			);
+			path = MCP;
+			sourceTree = "<group>";
+		};
+		MCP00C002E9F35B300F5C26A /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				MCP008002E9F35B300F5C266 /* TrafficTools.swift */,
+				MCP009002E9F35B300F5C267 /* ConnectionTools.swift */,
+				MCP00A002E9F35B300F5C268 /* ControlTools.swift */,
+				MCP00B002E9F35B300F5C269 /* DiagnosticTools.swift */,
+			);
+			path = Tools;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -324,24 +343,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		BCD0E03A210F5E0D00CE5C7B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = BCD0E022210F5E0D00CE5C7B /* App Traffic Inspector */;
-			targetProxy = BCD0E03B210F5E0D00CE5C7B /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
-/* Begin PBXContainerItemProxy section */
-		BCD0E03B210F5E0D00CE5C7B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = BCD0E01B210F5E0D00CE5C7B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = BCD0E022210F5E0D00CE5C7B;
-			remoteInfo = AppTrafficInspector;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXSourcesBuildPhase section */
 		BCD0E01F210F5E0D00CE5C7B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -383,7 +384,10 @@
 				MCP009012E9F35B300F5C267 /* ConnectionTools.swift in Sources */,
 				MCP00A012E9F35B300F5C268 /* ControlTools.swift in Sources */,
 				MCP00B012E9F35B300F5C269 /* DiagnosticTools.swift in Sources */,
+				1729C6292F42AE1900E94E4D /* BodyViewAsync.swift in Sources */,
 				MCP00D012E9F35B300F5C26B /* MCPServerStatus.swift in Sources */,
+				1729C62D2F42B20800E94E4D /* BodyDisplayResult.swift in Sources */,
+				1729C6272F42AD5200E94E4D /* OverviewContentAsync.swift in Sources */,
 				MCP00E012E9F35B300F5C26C /* SettingsView.swift in Sources */,
 				MCP00F012E9F35B300F5C26D /* TrafficEventBus.swift in Sources */,
 				MCP010012E9F35B300F5C26E /* MCPActivityLog.swift in Sources */,
@@ -401,7 +405,41 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		BCD0E03A210F5E0D00CE5C7B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BCD0E022210F5E0D00CE5C7B /* App Traffic Inspector */;
+			targetProxy = BCD0E03B210F5E0D00CE5C7B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		BCD0E03D210F5E0D00CE5C7B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = nz.ging.AppTrafficInspectorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/App Traffic Inspector.app/Contents/MacOS/App Traffic Inspector";
+			};
+			name = Debug;
+		};
+		BCD0E03E210F5E0D00CE5C7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = nz.ging.AppTrafficInspectorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/App Traffic Inspector.app/Contents/MacOS/App Traffic Inspector";
+			};
+			name = Release;
+		};
 		BCD0E047210F5E0D00CE5C7B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -625,32 +663,6 @@
 			};
 			name = Release;
 		};
-		BCD0E03D210F5E0D00CE5C7B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = nz.ging.AppTrafficInspectorTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/App Traffic Inspector.app/Contents/MacOS/App Traffic Inspector";
-			};
-			name = Debug;
-		};
-		BCD0E03E210F5E0D00CE5C7B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = nz.ging.AppTrafficInspectorTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/App Traffic Inspector.app/Contents/MacOS/App Traffic Inspector";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -663,20 +675,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		BCD0E049210F5E0D00CE5C7B /* Build configuration list for PBXNativeTarget "App Traffic Inspector" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				BCD0E04A210F5E0D00CE5C7B /* Debug */,
-				BCD0E04B210F5E0D00CE5C7B /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		BCD0E03C210F5E0D00CE5C7B /* Build configuration list for PBXNativeTarget "AppTrafficInspectorTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BCD0E03D210F5E0D00CE5C7B /* Debug */,
 				BCD0E03E210F5E0D00CE5C7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BCD0E049210F5E0D00CE5C7B /* Build configuration list for PBXNativeTarget "App Traffic Inspector" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BCD0E04A210F5E0D00CE5C7B /* Debug */,
+				BCD0E04B210F5E0D00CE5C7B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
