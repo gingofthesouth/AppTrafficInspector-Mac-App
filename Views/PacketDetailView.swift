@@ -220,13 +220,3 @@ private enum DetailTab: String, CaseIterable, Identifiable {
     case responseBody = "Resp Body"
     var id: String { rawValue }
 }
-
-
-
-
-
-
-
-
-
-
