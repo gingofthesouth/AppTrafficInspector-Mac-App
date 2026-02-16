@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 
+@MainActor
 final class AppTrafficStore: ObservableObject {
     @Published var projects: [AppTrafficProject] = []
     @Published var selectedProject: AppTrafficProject?
@@ -13,7 +14,8 @@ final class AppTrafficStore: ObservableObject {
     @Published var methodFilterTerm: String = "" { didSet { refreshPackets() } }
     @Published var statusFilterTerm: String = "" { didSet { refreshPackets() } }
 
-    private var cancellables: [NSObjectProtocol] = []
+    /// Observer tokens; stored nonisolated so deinit can remove them from any thread.
+    private nonisolated(unsafe) var cancellables: [NSObjectProtocol] = []
 
     init() {
         subscribeNotifications()
@@ -47,19 +49,19 @@ final class AppTrafficStore: ObservableObject {
     private func subscribeNotifications() {
         let center = NotificationCenter.default
         let didGet = center.addObserver(forName: AppTrafficNotifications.didGetPacket, object: nil, queue: .main) { [weak self] _ in
-            self?.refreshAll()
+            Task { @MainActor in self?.refreshAll() }
         }
         let didUpdate = center.addObserver(forName: AppTrafficNotifications.didUpdatePacket, object: nil, queue: .main) { [weak self] _ in
-            self?.refreshPackets()
+            Task { @MainActor in self?.refreshPackets() }
         }
         let didSelectProject = center.addObserver(forName: AppTrafficNotifications.didSelectProject, object: nil, queue: .main) { [weak self] _ in
-            self?.refreshProjectsAndDevices()
+            Task { @MainActor in self?.refreshProjectsAndDevices() }
         }
         let didSelectDevice = center.addObserver(forName: AppTrafficNotifications.didSelectDevice, object: nil, queue: .main) { [weak self] _ in
-            self?.refreshDevicesAndPackets()
+            Task { @MainActor in self?.refreshDevicesAndPackets() }
         }
         let didSelectPacket = center.addObserver(forName: AppTrafficNotifications.didSelectPacket, object: nil, queue: .main) { [weak self] _ in
-            self?.refreshSelection()
+            Task { @MainActor in self?.refreshSelection() }
         }
         cancellables.append(contentsOf: [didGet, didUpdate, didSelectProject, didSelectDevice, didSelectPacket])
     }

@@ -6,17 +6,24 @@
 import Cocoa
 import Network
 
-protocol AppTrafficPublisherDelegate {
+@MainActor
+protocol AppTrafficPublisherDelegate: AnyObject {
     func didGetPacket(publisher: AppTrafficPublisher, packet: AppTrafficPacket)
 }
 
-class AppTrafficPublisher: NSObject {
+final class AppTrafficPublisher: NSObject, @unchecked Sendable {
 
     var delegate: AppTrafficPublisherDelegate?
     
     private var listener: NWListener?
     private var connections: [NWConnection] = []
     private var bonjourRegistrar: BonjourSingleInterfaceRegistrar?
+
+    /// Current listener state for MCP get_server_status. Nil if listener not created.
+    var listenerState: NWListener.State? { listener?.state }
+
+    /// Active TCP connections for MCP list_connections.
+    var activeConnections: [NWConnection] { connections }
 
     func startPublishing() {
         // Tear down existing listener and Bonjour so the port is released before rebinding
@@ -135,7 +142,7 @@ class AppTrafficPublisher: NSObject {
     private static let maxBodyLength = 2 * 1024 * 1024
 
     private func readNextFrame(on connection: NWConnection) {
-        // Read 8-byte length prefix (big-endian UInt64 per WIRE_CONTRACT; matches AppTrafficInspectorKit)
+        // Read 8-byte length prefix. Try big-endian first (wire contract), fall back to little-endian.
         connection.receive(minimumIncompleteLength: 8, maximumLength: 8) { [weak self] header, _, isComplete, error in
             guard let self = self else { return }
             if let error = error {
@@ -150,9 +157,16 @@ class AppTrafficPublisher: NSObject {
                 return
             }
 
-            let u64 = header.withUnsafeBytes { UInt64(bigEndian: $0.load(as: UInt64.self)) }
-            guard u64 <= Self.maxBodyLength else {
-                print("Failed to read body: length \(u64) exceeds max \(Self.maxBodyLength)")
+            let raw = header.withUnsafeBytes { $0.load(as: UInt64.self) }
+            let big = UInt64(bigEndian: raw)
+            let little = UInt64(littleEndian: raw)
+            let u64: UInt64
+            if big <= Self.maxBodyLength {
+                u64 = big
+            } else if little <= Self.maxBodyLength {
+                u64 = little
+            } else {
+                print("Failed to read body: length big=\(big) little=\(little) both exceed max \(Self.maxBodyLength)")
                 connection.cancel()
                 return
             }
@@ -174,6 +188,7 @@ class AppTrafficPublisher: NSObject {
                     connection.cancel()
                     return
                 }
+                print("ready to parse body")
                 self.parseBody(data: body)
                 self.readNextFrame(on: connection)
             }

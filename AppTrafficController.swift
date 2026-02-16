@@ -5,6 +5,13 @@
 
 import Cocoa
 
+enum AddPacketResult {
+    case updated
+    case added
+    case addedWithNewDevice(deviceId: String, deviceName: String)
+    case addedWithNewProject(projectName: String)
+}
+
 struct AppTrafficNotifications {
     
     static let didGetPacket = NSNotification.Name("DidGetPacket")
@@ -14,7 +21,8 @@ struct AppTrafficNotifications {
     static let didSelectPacket = NSNotification.Name("DidSelectPacket")
 }
 
-class AppTrafficController: NSObject, AppTrafficPublisherDelegate {
+@MainActor
+final class AppTrafficController: NSObject, AppTrafficPublisherDelegate {
     
     static let shared = AppTrafficController()
     
@@ -35,43 +43,59 @@ class AppTrafficController: NSObject, AppTrafficPublisherDelegate {
         
     }
     
+    private func packetEventParams(_ packet: AppTrafficPacket) -> (projectName: String, deviceId: String, deviceName: String, packetId: String, method: String, url: String, statusCode: String) {
+        (
+            packet.project?.projectName ?? "",
+            packet.device?.deviceId ?? "",
+            packet.device?.deviceName ?? "",
+            packet.packetId ?? "",
+            packet.requestInfo?.requestMethod?.rawValue ?? "",
+            packet.requestInfo?.url ?? "",
+            packet.requestInfo?.statusCode ?? ""
+        )
+    }
+
     func didGetPacket(publisher: AppTrafficPublisher, packet: AppTrafficPacket) {
-        
-        if self.addPacket(newPacket: packet) {
-            NotificationCenter.default.post(name: AppTrafficNotifications.didGetPacket, object: nil, userInfo: ["packet": packet])
-            self.checkInitialSelection()
-        }else{
+        let result = self.addPacket(newPacket: packet)
+        let params = packetEventParams(packet)
+
+        switch result {
+        case .updated:
             NotificationCenter.default.post(name: AppTrafficNotifications.didUpdatePacket, object: nil, userInfo: ["packet": packet])
+            TrafficEventBus.shared.emit(.packetUpdated(projectName: params.projectName, deviceId: params.deviceId, packetId: params.packetId, method: params.method, url: params.url, statusCode: params.statusCode))
+        case .added:
+            NotificationCenter.default.post(name: AppTrafficNotifications.didGetPacket, object: nil, userInfo: ["packet": packet])
+            TrafficEventBus.shared.emit(.packetAdded(projectName: params.projectName, deviceId: params.deviceId, packetId: params.packetId, method: params.method, url: params.url, statusCode: params.statusCode))
+            self.checkInitialSelection()
+        case .addedWithNewDevice(let deviceId, let deviceName):
+            NotificationCenter.default.post(name: AppTrafficNotifications.didGetPacket, object: nil, userInfo: ["packet": packet])
+            TrafficEventBus.shared.emit(.deviceAdded(projectName: params.projectName, deviceId: deviceId, deviceName: deviceName))
+            TrafficEventBus.shared.emit(.packetAdded(projectName: params.projectName, deviceId: params.deviceId, packetId: params.packetId, method: params.method, url: params.url, statusCode: params.statusCode))
+            self.checkInitialSelection()
+        case .addedWithNewProject(let projectName):
+            NotificationCenter.default.post(name: AppTrafficNotifications.didGetPacket, object: nil, userInfo: ["packet": packet])
+            TrafficEventBus.shared.emit(.projectAdded(projectName: projectName))
+            TrafficEventBus.shared.emit(.packetAdded(projectName: params.projectName, deviceId: params.deviceId, packetId: params.packetId, method: params.method, url: params.url, statusCode: params.statusCode))
+            self.checkInitialSelection()
         }
     }
-    
+
     @discardableResult
-    func addPacket(newPacket: AppTrafficPacket) -> Bool {
-        
+    func addPacket(newPacket: AppTrafficPacket) -> AddPacketResult {
         for project in self.projects {
-            
             if project.projectName == newPacket.project?.projectName {
-                
                 return project.addPacket(newPacket: newPacket)
             }
         }
-        
-        
+
         let project = AppTrafficProject()
-        
         project.projectName = newPacket.project?.projectName
-        project.addPacket(newPacket: newPacket)
-        
+        _ = project.addPacket(newPacket: newPacket)
         self.projects.append(project)
-        
-        
-        
         if self.projects.count == 1 {
-            
             self.selectedProject = self.projects.first
         }
-        
-        return true
+        return .addedWithNewProject(projectName: newPacket.project?.projectName ?? "")
     }
     
     

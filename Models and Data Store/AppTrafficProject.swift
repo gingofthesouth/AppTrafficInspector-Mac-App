@@ -17,12 +17,12 @@ class AppTrafficProject: NSObject {
     }
     
     @discardableResult
-    func addPacket(newPacket: AppTrafficPacket) -> Bool {
+    func addPacket(newPacket: AppTrafficPacket) -> AddPacketResult {
         // Prefer match by deviceId; then coalesce by (projectName, deviceName) to avoid duplicate "connections"
         // when the client sends multiple deviceIds (e.g. multiple inspector instances or Bonjour resolving multiple times).
         for device in self.devices {
             if device.deviceId == newPacket.device?.deviceId {
-                return device.addPacket(newPacket: newPacket)
+                return device.addPacket(newPacket: newPacket) ? .added : .updated
             }
         }
         let sameName = newPacket.device?.deviceName
@@ -30,7 +30,7 @@ class AppTrafficProject: NSObject {
         if sameProject, let name = sameName, !name.isEmpty {
             for device in self.devices where device.deviceName == name {
                 device.deviceId = device.deviceId ?? newPacket.device?.deviceId
-                return device.addPacket(newPacket: newPacket)
+                return device.addPacket(newPacket: newPacket) ? .added : .updated
             }
         }
 
@@ -44,6 +44,9 @@ class AppTrafficProject: NSObject {
         if self.devices.count == 1 {
             self.selectedDevice = self.devices.first
         }
-        return true
+        return .addedWithNewDevice(
+            deviceId: newPacket.device?.deviceId ?? "",
+            deviceName: newPacket.device?.deviceName ?? ""
+        )
     }
 }

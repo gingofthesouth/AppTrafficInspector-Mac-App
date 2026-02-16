@@ -12,5 +12,12 @@ struct AppTrafficInspectorApp: App {
                 .environmentObject(store)
         }
         .commands { AppTrafficMenuCommands(store: store) }
+        Settings {
+            SettingsView()
+        }
+        Window("MCP Console", id: "mcp-console") {
+            MCPConsoleView()
+        }
+        .keyboardShortcut("0", modifiers: [.command, .shift])
     }
 }

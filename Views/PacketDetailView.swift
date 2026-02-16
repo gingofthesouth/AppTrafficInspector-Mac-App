@@ -8,9 +8,6 @@
 import SwiftUI
 import AppKit
 
-/// Max bytes to decode/pretty-print in detail view; larger bodies are truncated to avoid 100% CPU / beach ball.
-private let maxDetailBodyBytes = 512 * 1024
-
 struct PacketDetailView: View {
     let packet: AppTrafficPacket?
     @State private var selected: DetailTab = .overview
@@ -29,7 +26,7 @@ struct PacketDetailView: View {
                     Spacer()
                     Button("Copy") { copyToClipboard(detailText(for: info, tab: selected, pretty: true)) }
                     if selected == .overview {
-                        Button("cURL") { copyToClipboard(curlString(for: info)) }
+                        Button("cURL") { copyToClipboard(PacketFormatting.curlString(for: info)) }
                     }
                 }
             } else {
@@ -93,11 +90,11 @@ struct PacketDetailView: View {
             }
             return ""
         case .requestBody:
-            return dataString(fromBase64: info.requestBody, pretty: true)
+            return PacketFormatting.dataString(fromBase64: info.requestBody, pretty: true)
         case .responseHeaders:
             return keyValuesString(info.responseHeaders)
         case .responseBody:
-            return dataString(fromBase64: info.responseData, pretty: true)
+            return PacketFormatting.dataString(fromBase64: info.responseData, pretty: true)
         }
     }
 
@@ -111,9 +108,9 @@ struct PacketDetailView: View {
         }
         let reqHeaders = keyValuesString(info.requestHeaders)
         if !reqHeaders.isEmpty { s += "Request Headers:\n" + reqHeaders + "\n\n" }
-        let reqBody = dataString(fromBase64: info.requestBody, pretty: true)
+        let reqBody = PacketFormatting.dataString(fromBase64: info.requestBody, pretty: true)
         if !reqBody.isEmpty { s += "Request Body:\n" + reqBody + "\n\n" }
-        let respBody = dataString(fromBase64: info.responseData, pretty: true)
+        let respBody = PacketFormatting.dataString(fromBase64: info.responseData, pretty: true)
         if !respBody.isEmpty { s += "Response Body:\n" + respBody }
         return s
     }
@@ -128,42 +125,6 @@ struct PacketDetailView: View {
     private func queryItemsString(url: URL) -> String {
         guard let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems, !items.isEmpty else { return "" }
         return items.map { "\($0.name): \($0.value ?? "")" }.joined(separator: "\n")
-    }
-
-    private func dataString(fromBase64 base64: String?, pretty: Bool) -> String {
-        guard let base64 = base64, let data = Data(base64Encoded: base64, options: .ignoreUnknownCharacters) else { return "" }
-        let capped = data.count > maxDetailBodyBytes ? Data(data.prefix(maxDetailBodyBytes)) : data
-        let truncatedSuffix = data.count > maxDetailBodyBytes ? "\n\n… (truncated, total \(data.count) bytes)" : ""
-        if pretty {
-            // Try JSON pretty print (on capped size to avoid CPU spike)
-            if let obj = try? JSONSerialization.jsonObject(with: capped, options: .mutableContainers),
-               let prettyData = try? JSONSerialization.data(withJSONObject: obj, options: .prettyPrinted),
-               let str = String(data: prettyData, encoding: .utf8) {
-                return str.replacingOccurrences(of: "\\/", with: "/") + truncatedSuffix
-            }
-        }
-        // Try UTF-8 text
-        if let str = String(data: capped, encoding: .utf8) { return str + truncatedSuffix }
-        return "(binary data \(data.count) bytes)"
-    }
-
-    private func curlString(for info: AppTrafficRequestInfo) -> String {
-        guard let url = info.url else { return "" }
-        var base = "curl \(url)"
-        if info.requestMethod == .head { base += " --head" }
-        var parts = [base]
-        if let method = info.requestMethod, method != .get && method != .head {
-            parts.append("-X \(method.rawValue)")
-        }
-        if let headers = info.requestHeaders {
-            for (k,v) in headers where k != "Cookie" {
-                parts.append("-H '\(k): \(v)'")
-            }
-        }
-        if let b64 = info.requestBody, let data = Data(base64Encoded: b64, options: .ignoreUnknownCharacters), let str = String(data: data, encoding: .utf8) {
-            parts.append("-d '\(str)'")
-        }
-        return parts.joined(separator: " \\\n\t")
     }
 
     private func copyToClipboard(_ text: String) {
@@ -196,9 +157,9 @@ struct PacketDetailView: View {
                 let durationMs = Int(end.timeIntervalSince(start) * 1000)
                 Text("\(durationMs) ms").foregroundStyle(.secondary)
             }
-            Text("Req: \(byteSizeString(fromBase64: info.requestBody))")
+            Text("Req: \(PacketFormatting.byteSizeString(fromBase64: info.requestBody))")
                 .foregroundStyle(.tertiary)
-            Text("Resp: \(byteSizeString(fromBase64: info.responseData))")
+            Text("Resp: \(PacketFormatting.byteSizeString(fromBase64: info.responseData))")
                 .foregroundStyle(.tertiary)
         }
     }
@@ -212,13 +173,6 @@ struct PacketDetailView: View {
         return .primary
     }
 
-    private func byteSizeString(fromBase64 base64: String?) -> String {
-        guard let base64 = base64, let data = Data(base64Encoded: base64, options: .ignoreUnknownCharacters) else { return "0 B" }
-        let count = Double(data.count)
-        if count < 1024 { return "\(Int(count)) B" }
-        if count < 1024 * 1024 { return String(format: "%.1f KB", count/1024) }
-        return String(format: "%.2f MB", count/(1024*1024))
-    }
 }
 
 // MARK: - Content Rendering
@@ -245,22 +199,7 @@ extension PacketDetailView {
 
     @ViewBuilder
     private func bodyView(base64: String?) -> some View {
-        if let base64 = base64,
-           let data = Data(base64Encoded: base64, options: .ignoreUnknownCharacters) {
-            let capped = data.count > maxDetailBodyBytes ? Data(data.prefix(maxDetailBodyBytes)) : data
-            let truncatedSuffix = data.count > maxDetailBodyBytes ? "\n\n… (truncated, total \(data.count) bytes)" : ""
-            if let obj = try? JSONSerialization.jsonObject(with: capped, options: .mutableContainers),
-               let pretty = try? JSONSerialization.data(withJSONObject: obj, options: .prettyPrinted),
-               let json = String(data: pretty, encoding: .utf8) {
-                JSONTextView(text: json.replacingOccurrences(of: "\\/", with: "/") + truncatedSuffix)
-            } else if let str = String(data: capped, encoding: .utf8) {
-                ScrollView { textMono(str + truncatedSuffix) }
-            } else {
-                ScrollView { textMono("(binary data \(data.count) bytes)") }
-            }
-        } else {
-            EmptyBodyView()
-        }
+        BodyViewAsync(base64: base64)
     }
 
     private func textMono(_ text: String) -> some View {
@@ -280,4 +219,84 @@ private enum DetailTab: String, CaseIterable, Identifiable {
     case responseHeaders = "Resp Headers"
     case responseBody = "Resp Body"
     var id: String { rawValue }
+}
+
+// MARK: - Async body preparation (decode + pretty off main thread)
+private enum BodyDisplayResult {
+    case loading
+    case json(String)
+    case plain(String)
+    case binary(Int)
+    case empty
+}
+
+private func resolveBodyOffMain(base64: String?) -> BodyDisplayResult {
+    guard let base64 = base64,
+          let data = Data(base64Encoded: base64, options: .ignoreUnknownCharacters) else {
+        return .empty
+    }
+    let capped = data.count > PacketFormatting.maxDetailBodyBytes
+        ? Data(data.prefix(PacketFormatting.maxDetailBodyBytes))
+        : data
+    let truncatedSuffix = data.count > PacketFormatting.maxDetailBodyBytes
+        ? "\n\n… (truncated, total \(data.count) bytes)"
+        : ""
+    if let obj = try? JSONSerialization.jsonObject(with: capped, options: .mutableContainers),
+       let pretty = try? JSONSerialization.data(withJSONObject: obj, options: .prettyPrinted),
+       let json = String(data: pretty, encoding: .utf8) {
+        return .json(json.replacingOccurrences(of: "\\/", with: "/") + truncatedSuffix)
+    }
+    if let str = String(data: capped, encoding: .utf8) {
+        return .plain(str + truncatedSuffix)
+    }
+    return .binary(data.count)
+}
+
+private struct BodyViewAsync: View {
+    let base64: String?
+    @State private var result: BodyDisplayResult = .loading
+
+    var body: some View {
+        bodyContent
+            .task(id: base64) {
+                result = .loading
+                guard base64 != nil else {
+                    result = .empty
+                    return
+                }
+                let resolved = await Task.detached(priority: .userInitiated) {
+                    resolveBodyOffMain(base64: base64)
+                }.value
+                result = resolved
+            }
+    }
+
+    @ViewBuilder
+    private var bodyContent: some View {
+        switch result {
+        case .loading:
+            ProgressView("Loading…")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        case .json(let string):
+            JSONTextView(text: string)
+        case .plain(let string):
+            ScrollView {
+                Text(string)
+                    .textSelection(.enabled)
+                    .font(.system(.body, design: .monospaced))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.trailing, 4)
+            }
+        case .binary(let count):
+            ScrollView {
+                Text("(binary data \(count) bytes)")
+                    .textSelection(.enabled)
+                    .font(.system(.body, design: .monospaced))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.trailing, 4)
+            }
+        case .empty:
+            EmptyBodyView()
+        }
+    }
 }
