@@ -63,6 +63,7 @@ final class MCPServer: @unchecked Sendable {
         toolRegistry.register(GetAppInfoTool())
         toolRegistry.register(GetRedactionSettingsTool())
         toolRegistry.register(SetRedactionModeTool())
+        toolRegistry.register(GetIncomingPacketsSummaryTool())
         #if DEBUG
         toolRegistry.register(RestartListenerTool())
         toolRegistry.register(ClearPacketsTool())
