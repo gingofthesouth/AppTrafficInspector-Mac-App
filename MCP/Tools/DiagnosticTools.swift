@@ -71,3 +71,58 @@ struct SetRedactionModeTool: MCPTool {
         return .text("{\"mode\":\"\(mode.rawValue)\"}")
     }
 }
+
+/// Debug helper: summary of all received packets and current selection for inspecting incoming traffic.
+struct GetIncomingPacketsSummaryTool: MCPTool {
+    let name = "get_incoming_packets_summary"
+    let description = "Return total packet count, current selection (project/device), and last N packet summaries (url, method, status) across all projects. Use for debugging whether packets are received and displayed."
+    var inputSchema: [String: Any] {
+        ["type": "object", "properties": ["limit": ["type": "integer", "description": "Max packet summaries to return (default 30)"] as [String: Any]] as [String: Any]]
+    }
+
+    func execute(arguments: [String: Any]) async throws -> MCPToolResult {
+        let limit = arguments["limit"] as? Int ?? 30
+        let data = await MainActor.run {
+            let controller = AppTrafficController.shared
+            var total = 0
+            var allPackets: [(projectName: String?, deviceName: String?, packetId: String?, url: String?, method: String?, statusCode: String?)] = []
+            for project in controller.projects {
+                for device in project.devices {
+                    for packet in device.packets {
+                        total += 1
+                        allPackets.append((
+                            projectName: project.projectName,
+                            deviceName: device.deviceName,
+                            packetId: packet.packetId,
+                            url: packet.requestInfo?.url,
+                            method: packet.requestInfo?.requestMethod?.rawValue,
+                            statusCode: packet.requestInfo?.statusCode
+                        ))
+                    }
+                }
+            }
+            let lastN = Array(allPackets.suffix(limit))
+            let selection: [String: Any] = [
+                "selectedProject": controller.selectedProject?.projectName ?? "",
+                "selectedDevice": controller.selectedProject?.selectedDevice?.deviceName ?? ""
+            ]
+            let packetsList = lastN.map { p -> [String: Any] in
+                [
+                    "projectName": p.projectName ?? "",
+                    "deviceName": p.deviceName ?? "",
+                    "packetId": String((p.packetId ?? "").prefix(8)),
+                    "url": p.url ?? "",
+                    "method": p.method ?? "",
+                    "statusCode": p.statusCode ?? ""
+                ] as [String: Any]
+            }
+            let json: [String: Any] = [
+                "totalPacketCount": total,
+                "selection": selection,
+                "lastPackets": packetsList
+            ] as [String: Any]
+            return (try? JSONSerialization.data(withJSONObject: json)) ?? Data()
+        }
+        return .text(String(data: data, encoding: .utf8) ?? "{}")
+    }
+}

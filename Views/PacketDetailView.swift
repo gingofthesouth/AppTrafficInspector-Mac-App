@@ -20,7 +20,7 @@ struct PacketDetailView: View {
                     .padding(.bottom, 4)
                 segmentedBar()
 
-                contentView(for: info, tab: selected)
+                contentView(for: info, tab: selected, packet: packet)
 
                 HStack(spacing: 8) {
                     Spacer()
@@ -178,10 +178,10 @@ struct PacketDetailView: View {
 // MARK: - Content Rendering
 extension PacketDetailView {
     @ViewBuilder
-    fileprivate func contentView(for info: AppTrafficRequestInfo, tab: DetailTab) -> some View {
+    fileprivate func contentView(for info: AppTrafficRequestInfo, tab: DetailTab, packet: AppTrafficPacket?) -> some View {
         switch tab {
         case .overview:
-            ScrollView { textMono(overviewString(info)) }
+            OverviewContentAsync(info: info, packet: packet)
         case .requestHeaders:
             ScrollView { textMono(keyValuesString(info.requestHeaders)) }
         case .parameters:
@@ -219,84 +219,4 @@ private enum DetailTab: String, CaseIterable, Identifiable {
     case responseHeaders = "Resp Headers"
     case responseBody = "Resp Body"
     var id: String { rawValue }
-}
-
-// MARK: - Async body preparation (decode + pretty off main thread)
-private enum BodyDisplayResult {
-    case loading
-    case json(String)
-    case plain(String)
-    case binary(Int)
-    case empty
-}
-
-private func resolveBodyOffMain(base64: String?) -> BodyDisplayResult {
-    guard let base64 = base64,
-          let data = Data(base64Encoded: base64, options: .ignoreUnknownCharacters) else {
-        return .empty
-    }
-    let capped = data.count > PacketFormatting.maxDetailBodyBytes
-        ? Data(data.prefix(PacketFormatting.maxDetailBodyBytes))
-        : data
-    let truncatedSuffix = data.count > PacketFormatting.maxDetailBodyBytes
-        ? "\n\n… (truncated, total \(data.count) bytes)"
-        : ""
-    if let obj = try? JSONSerialization.jsonObject(with: capped, options: .mutableContainers),
-       let pretty = try? JSONSerialization.data(withJSONObject: obj, options: .prettyPrinted),
-       let json = String(data: pretty, encoding: .utf8) {
-        return .json(json.replacingOccurrences(of: "\\/", with: "/") + truncatedSuffix)
-    }
-    if let str = String(data: capped, encoding: .utf8) {
-        return .plain(str + truncatedSuffix)
-    }
-    return .binary(data.count)
-}
-
-private struct BodyViewAsync: View {
-    let base64: String?
-    @State private var result: BodyDisplayResult = .loading
-
-    var body: some View {
-        bodyContent
-            .task(id: base64) {
-                result = .loading
-                guard base64 != nil else {
-                    result = .empty
-                    return
-                }
-                let resolved = await Task.detached(priority: .userInitiated) {
-                    resolveBodyOffMain(base64: base64)
-                }.value
-                result = resolved
-            }
-    }
-
-    @ViewBuilder
-    private var bodyContent: some View {
-        switch result {
-        case .loading:
-            ProgressView("Loading…")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        case .json(let string):
-            JSONTextView(text: string)
-        case .plain(let string):
-            ScrollView {
-                Text(string)
-                    .textSelection(.enabled)
-                    .font(.system(.body, design: .monospaced))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.trailing, 4)
-            }
-        case .binary(let count):
-            ScrollView {
-                Text("(binary data \(count) bytes)")
-                    .textSelection(.enabled)
-                    .font(.system(.body, design: .monospaced))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.trailing, 4)
-            }
-        case .empty:
-            EmptyBodyView()
-        }
-    }
 }
