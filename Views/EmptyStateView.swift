@@ -24,6 +24,11 @@ struct EmptyStateView: View {
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.tertiary)
                     .frame(maxWidth: 420)
+                Button("Quick start…") {
+                    NotificationCenter.default.post(name: .showQuickStartGuide, object: nil)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.regular)
             }
             .padding(24)
         }

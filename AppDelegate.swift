@@ -7,6 +7,7 @@ import Cocoa
 
 private let mcpServerEnabledKey = "mcpServerEnabled"
 
+@MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
     private var mcpServer: MCPServer?
     private var startStopObservers: [NSObjectProtocol] = []
@@ -16,10 +17,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         GetAppInfoTool.setLaunchTime(Date())
         let o1 = NotificationCenter.default.addObserver(forName: .mcpServerStart, object: nil, queue: .main) { [weak self] _ in
-            self?.startMCPServer()
+            MainActor.assumeIsolated { self?.startMCPServer() }
         }
         let o2 = NotificationCenter.default.addObserver(forName: .mcpServerStop, object: nil, queue: .main) { [weak self] _ in
-            self?.stopMCPServer()
+            MainActor.assumeIsolated { self?.stopMCPServer() }
         }
         let o3 = NotificationCenter.default.addObserver(forName: .mcpServerDidStart, object: nil, queue: .main) { _ in
             Task { @MainActor in MCPServerStatus.shared.isMCPServerRunning = true }

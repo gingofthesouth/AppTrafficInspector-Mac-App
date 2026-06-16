@@ -23,9 +23,9 @@ struct SettingsView: View {
                             object: nil
                         )
                     }
-                Text("Port: \(MCPPort)")
+                Text("Port: \(String(MCPPort))")
                     .foregroundStyle(.secondary)
-                Text("URL: http://127.0.0.1:\(MCPPort)\(MCPPath)")
+                Text("URL: http://127.0.0.1:\(String(MCPPort))\(MCPPath)")
                     .font(.system(.body, design: .monospaced))
                     .foregroundStyle(.secondary)
                 if mcpStatus.isMCPServerRunning {
