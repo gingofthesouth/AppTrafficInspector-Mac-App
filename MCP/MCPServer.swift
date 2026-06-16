@@ -82,7 +82,7 @@ final class MCPServer: @unchecked Sendable {
             listener.stateUpdateHandler = { state in
                 switch state {
                 case .ready:
-                    DevLogger.logInfo(message: "MCP server listening on 127.0.0.1:\(MCPPort)")
+                    DevLogger.logInfo(message: "MCP server listening on 127.0.0.1:\(String(MCPPort))")
                     DispatchQueue.main.async {
                         NotificationCenter.default.post(name: .mcpServerDidStart, object: nil)
                     }
@@ -145,8 +145,15 @@ final class MCPServer: @unchecked Sendable {
     }
 
     private func readRequest(_ connection: NWConnection) {
-        var buffer = Data()
-        func readMore() {
+        // Hold the accumulating buffer in a reference type so the value isn't a
+        // captured `var` mutated inside the concurrently-executing receive handler.
+        // The receive callbacks for a single connection are delivered serially, so
+        // there is no actual concurrent access to the buffer.
+        final class BufferBox: @unchecked Sendable {
+            var data = Data()
+        }
+        let buffer = BufferBox()
+        @Sendable func readMore() {
             connection.receive(minimumIncompleteLength: 1, maximumLength: 65536) { [weak self] data, _, isComplete, error in
                 guard let self = self else { return }
                 if let error = error {
@@ -157,15 +164,15 @@ final class MCPServer: @unchecked Sendable {
                     return
                 }
                 if let data = data, !data.isEmpty {
-                    buffer.append(data)
+                    buffer.data.append(data)
                 }
                 do {
-                    var copy = buffer
+                    var copy = buffer.data
                     let request = try MCPHTTPParser.parseRequest(&copy)
                     if let request = request {
-                        buffer = copy
+                        buffer.data = copy
                         self.handleRequest(request, connection: connection)
-                        if !buffer.isEmpty { readMore() }
+                        if !buffer.data.isEmpty { readMore() }
                         else { readRequest(connection) }
                     } else {
                         if isComplete {

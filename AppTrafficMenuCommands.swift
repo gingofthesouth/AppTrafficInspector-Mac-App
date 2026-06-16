@@ -21,5 +21,10 @@ struct AppTrafficMenuCommands: Commands {
             Button("Clear Packets") { store.clearPackets() }
                 .keyboardShortcut(.delete, modifiers: [.command, .shift])
         }
+        CommandGroup(after: .help) {
+            Button("Quick Start…") {
+                NotificationCenter.default.post(name: .showQuickStartGuide, object: nil)
+            }
+        }
     }
 }

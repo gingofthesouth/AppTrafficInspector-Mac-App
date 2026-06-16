@@ -10,7 +10,14 @@ import AppKit
 
 struct AppTrafficRootView: View {
     @ObservedObject var store: AppTrafficStore
+    @AppStorage("hasSeenQuickStart") private var hasSeenQuickStart = false
+    @AppStorage("quickStartGuideVersion") private var savedQuickStartGuideVersion = 0
+    @State private var showQuickStart = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
+
+    private var shouldShowQuickStartOnLaunch: Bool {
+        !hasSeenQuickStart || savedQuickStartGuideVersion < QuickStartContent.currentGuideVersion
+    }
     private var isFilterActive: Bool {
         let status = store.statusFilterTerm.trimmingCharacters(in: .whitespacesAndNewlines)
         return !store.addressFilterTerm.isEmpty || !store.methodFilterTerm.isEmpty || !status.isEmpty
@@ -39,7 +46,21 @@ struct AppTrafficRootView: View {
             }
         }
         .navigationSplitViewStyle(.balanced)
-        .onAppear { columnVisibility = .all }
+        .onAppear {
+            columnVisibility = .all
+            if shouldShowQuickStartOnLaunch {
+                showQuickStart = true
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .showQuickStartGuide)) { _ in
+            showQuickStart = true
+        }
+        .sheet(isPresented: $showQuickStart) {
+            QuickStartView {
+                hasSeenQuickStart = true
+                savedQuickStartGuideVersion = QuickStartContent.currentGuideVersion
+            }
+        }
     }
 
     private var projectsColumn: some View {

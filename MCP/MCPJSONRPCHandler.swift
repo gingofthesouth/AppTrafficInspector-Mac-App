@@ -40,7 +40,7 @@ enum MCPJSONRPCHandler {
             case "notifications/initialized":
                 return (nil, 202)
             case "tools/list":
-                let list = await toolRegistry.listTools()
+                let list = toolRegistry.listTools()
                 let result = ["tools": list] as [String: Any]
                 return (successResponse(id: id, result: result), 200)
             case "tools/call":

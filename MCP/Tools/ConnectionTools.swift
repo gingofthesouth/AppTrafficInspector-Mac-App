@@ -44,6 +44,7 @@ extension NWListener.State {
         case .waiting: return "waiting"
         case .failed: return "failed"
         case .cancelled: return "cancelled"
+        case .setup: return "setup"
         @unknown default: return "unknown"
         }
     }
@@ -75,6 +76,7 @@ struct ListConnectionsTool: MCPTool {
         case .preparing: return "preparing"
         case .failed: return "failed"
         case .cancelled: return "cancelled"
+        case .setup: return "setup"
         @unknown default: return "unknown"
         }
     }

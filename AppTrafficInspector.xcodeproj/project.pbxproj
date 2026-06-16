@@ -13,7 +13,6 @@
 		17DBCF172E9F35B300F5C257 /* AppTrafficStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF152E9F35B300F5C257 /* AppTrafficStore.swift */; };
 		17DBCF182E9F35B300F5C257 /* AppTrafficRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF142E9F35B300F5C257 /* AppTrafficRootView.swift */; };
 		17DBCF1A2E9F57D700F5C257 /* JSONTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF192E9F57D700F5C257 /* JSONTextView.swift */; };
-		17DBCF1C2E9F652B00F5C257 /* DetailTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF1B2E9F652B00F5C257 /* DetailTab.swift */; };
 		17DBCF1E2E9F654700F5C257 /* PacketDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF1D2E9F654700F5C257 /* PacketDetailView.swift */; };
 		17DBCF202E9F656F00F5C257 /* EmptyBodyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF1F2E9F656F00F5C257 /* EmptyBodyView.swift */; };
 		17DBCF222E9F657600F5C257 /* FilterEmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF212E9F657600F5C257 /* FilterEmptyView.swift */; };
@@ -21,6 +20,7 @@
 		17DBCF262E9F65C700F5C257 /* JSONHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DBCF252E9F65C700F5C257 /* JSONHighlighter.swift */; };
 		17EAB4322F3FDE02001C56F8 /* NetworkInterfaceDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17EAB4312F3FDE02001C56F8 /* NetworkInterfaceDetector.swift */; };
 		17EAB4332F3FDE02001C56F9 /* BonjourSingleInterfaceRegistrar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17EAB4342F3FDE02001C56F9 /* BonjourSingleInterfaceRegistrar.swift */; };
+		17F0A0012E9F700000F5C270 /* QuickStartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17F0A0002E9F700000F5C270 /* QuickStartView.swift */; };
 		A1B2C3D42EA1000000F5C257 /* AppTrafficInspectorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D32EA1000000F5C257 /* AppTrafficInspectorApp.swift */; };
 		A1B2C3D62EA1000A00F5C257 /* AppTrafficMenuCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D52EA1000A00F5C257 /* AppTrafficMenuCommands.swift */; };
 		BC73DFAE215BFB18002E533B /* AppTrafficPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC73DFAD215BFB18002E533B /* AppTrafficPublisher.swift */; };
@@ -72,7 +72,6 @@
 		17DBCF142E9F35B300F5C257 /* AppTrafficRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficRootView.swift; sourceTree = "<group>"; };
 		17DBCF152E9F35B300F5C257 /* AppTrafficStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficStore.swift; sourceTree = "<group>"; };
 		17DBCF192E9F57D700F5C257 /* JSONTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONTextView.swift; sourceTree = "<group>"; };
-		17DBCF1B2E9F652B00F5C257 /* DetailTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailTab.swift; sourceTree = "<group>"; };
 		17DBCF1D2E9F654700F5C257 /* PacketDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketDetailView.swift; sourceTree = "<group>"; };
 		17DBCF1F2E9F656F00F5C257 /* EmptyBodyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyBodyView.swift; sourceTree = "<group>"; };
 		17DBCF212E9F657600F5C257 /* FilterEmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterEmptyView.swift; sourceTree = "<group>"; };
@@ -80,6 +79,7 @@
 		17DBCF252E9F65C700F5C257 /* JSONHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONHighlighter.swift; sourceTree = "<group>"; };
 		17EAB4312F3FDE02001C56F8 /* NetworkInterfaceDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkInterfaceDetector.swift; sourceTree = "<group>"; };
 		17EAB4342F3FDE02001C56F9 /* BonjourSingleInterfaceRegistrar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourSingleInterfaceRegistrar.swift; sourceTree = "<group>"; };
+		17F0A0002E9F700000F5C270 /* QuickStartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickStartView.swift; sourceTree = "<group>"; };
 		A1B2C3D32EA1000000F5C257 /* AppTrafficInspectorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficInspectorApp.swift; sourceTree = "<group>"; };
 		A1B2C3D52EA1000A00F5C257 /* AppTrafficMenuCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficMenuCommands.swift; sourceTree = "<group>"; };
 		BC73DFAD215BFB18002E533B /* AppTrafficPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficPublisher.swift; sourceTree = "<group>"; };
@@ -154,10 +154,10 @@
 				1729C6262F42AD5200E94E4D /* OverviewContentAsync.swift */,
 				1729C6282F42AE1900E94E4D /* BodyViewAsync.swift */,
 				1729C62B2F42B20800E94E4D /* BodyDisplayResult.swift */,
-				17DBCF1B2E9F652B00F5C257 /* DetailTab.swift */,
 				17DBCF192E9F57D700F5C257 /* JSONTextView.swift */,
 				17DBCF1F2E9F656F00F5C257 /* EmptyBodyView.swift */,
 				17DBCF232E9F657E00F5C257 /* EmptyStateView.swift */,
+				17F0A0002E9F700000F5C270 /* QuickStartView.swift */,
 				17DBCF212E9F657600F5C257 /* FilterEmptyView.swift */,
 				17DBCF142E9F35B300F5C257 /* AppTrafficRootView.swift */,
 				MCP00E002E9F35B300F5C26C /* SettingsView.swift */,
@@ -350,6 +350,7 @@
 			files = (
 				BCEB9AA0217C94B1008BBF3C /* KeyValue.swift in Sources */,
 				17DBCF242E9F657E00F5C257 /* EmptyStateView.swift in Sources */,
+				17F0A0012E9F700000F5C270 /* QuickStartView.swift in Sources */,
 				BCEB9AA2217C94C1008BBF3C /* AppTrafficExtensions.swift in Sources */,
 				BCBD86E2215916C9009CBEA7 /* AppTrafficController.swift in Sources */,
 				BCEB9AB9217DD653008BBF3C /* Date.swift in Sources */,
@@ -361,7 +362,6 @@
 				17DBCF172E9F35B300F5C257 /* AppTrafficStore.swift in Sources */,
 				17DBCF182E9F35B300F5C257 /* AppTrafficRootView.swift in Sources */,
 				BCA60B41216201B900B9DCAD /* AppTrafficConfiguration.swift in Sources */,
-				17DBCF1C2E9F652B00F5C257 /* DetailTab.swift in Sources */,
 				BC911A422168C00500B755D4 /* NSColor.swift in Sources */,
 				BCFC855021384981001EC6D7 /* AppTrafficPacket.swift in Sources */,
 				17DBCF1A2E9F57D700F5C257 /* JSONTextView.swift in Sources */,

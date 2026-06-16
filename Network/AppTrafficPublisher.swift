@@ -36,7 +36,7 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
         }
         self.connections = []
 
-        let start: () -> Void = { [weak self] in self?.startPublishingImpl() }
+        let start: @Sendable () -> Void = { [weak self] in self?.startPublishingImpl() }
         if hadExisting {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: start)
         } else {
@@ -61,7 +61,7 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
         }
 
         do {
-            let port = NWEndpoint.Port(rawValue: UInt16(AppTrafficConfiguration.netServicePort))!
+            let port = NWEndpoint.Port(rawValue: AppTrafficConfiguration.netServicePort)!
 
             // Listen on all interfaces (0.0.0.0). requiredInterfaceType on NWListener can prevent
             // accepting connections to the advertised IP (connection refused). Bonjour is still
@@ -84,7 +84,7 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
                         name: AppTrafficConfiguration.netServiceName,
                         type: AppTrafficConfiguration.netServiceType,
                         domain: domain,
-                        port: UInt16(AppTrafficConfiguration.netServicePort)
+                        port: AppTrafficConfiguration.netServicePort
                     ) {
                         self?.bonjourRegistrar = registrar
                     }

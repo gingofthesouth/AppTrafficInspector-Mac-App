@@ -111,9 +111,10 @@ class NetworkInterfaceDetector {
         
         var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
         
-        if getnameinfo(addr, socklen_t(addr.pointee.sa_len), &hostname, 
+        if getnameinfo(addr, socklen_t(addr.pointee.sa_len), &hostname,
                       socklen_t(hostname.count), nil, 0, NI_NUMERICHOST) == 0 {
-            return String(cString: hostname)
+            let bytes = hostname.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }
+            return String(decoding: bytes, as: UTF8.self)
         }
         
         return nil
