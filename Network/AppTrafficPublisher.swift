@@ -33,14 +33,16 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
     var delegate: AppTrafficPublisherDelegate?
     
     private var listener: NWListener?
+    /// Guarded by `connectionsLock`: mutated from the listener queue and every connection's queue.
     private var connections: [NWConnection] = []
+    private let connectionsLock = NSLock()
     private var bonjourRegistrar: BonjourSingleInterfaceRegistrar?
 
     /// Current listener state for MCP get_server_status. Nil if listener not created.
     var listenerState: NWListener.State? { listener?.state }
 
     /// Active TCP connections for MCP list_connections.
-    var activeConnections: [NWConnection] { connections }
+    var activeConnections: [NWConnection] { connectionsLock.withLock { connections } }
 
     func startPublishing() {
         // Tear down existing listener and Bonjour so the port is released before rebinding
@@ -52,7 +54,8 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
             self.listener = nil
         }
 
-        self.connections = []
+        // Established device connections stay open and tracked across a listener restart;
+        // they are removed when they fail or are cancelled.
 
         let start: @Sendable () -> Void = { [weak self] in self?.startPublishingImpl() }
         if hadExisting {
@@ -67,8 +70,11 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
         bonjourRegistrar = nil
         listener?.cancel()
         listener = nil
-        connections.forEach { $0.cancel() }
-        connections.removeAll()
+        let open = connectionsLock.withLock { () -> [NWConnection] in
+            defer { connections.removeAll() }
+            return connections
+        }
+        open.forEach { $0.cancel() }
         Task { @MainActor in
             TrafficListenerStatus.shared.update(
                 summary: "Stopped",
@@ -166,7 +172,7 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
 
             self.listener = listener
 
-            listener.start(queue: .global(qos: .background))
+            listener.start(queue: DispatchQueue(label: "AppTrafficPublisher.listener"))
 
             // Bonjour is advertised only via NWListener.service (bound to preferred interface);
             // do not also publish NetService, which would register all interfaces and advertise wrong IPs (e.g. bridge101).
@@ -178,8 +184,8 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
     }
 
     private func setupConnection(_ connection: NWConnection) {
-        print("New Connection")
-        connections.append(connection)
+        print("New Connection from \(connection.endpoint)")
+        connectionsLock.withLock { connections.append(connection) }
         
         connection.stateUpdateHandler = { [weak self] state in
             switch state {
@@ -197,7 +203,8 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
             }
         }
         
-        connection.start(queue: .global(qos: .background))
+        // A serial queue per connection keeps its receive chain and parsing strictly ordered.
+        connection.start(queue: DispatchQueue(label: "AppTrafficPublisher.connection", qos: .userInitiated))
     }
     
     /// Max JSON transaction size (bytes) to avoid corrupt length prefixes or unbounded allocations.
@@ -259,8 +266,8 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
     }
     
     private func remove(_ connection: NWConnection) {
-        if let index = connections.firstIndex(where: { $0 === connection }) {
-            connections.remove(at: index)
+        connectionsLock.withLock {
+            connections.removeAll { $0 === connection }
         }
         // Do not restart when the last connection drops; only restart when the listener fails
     }
