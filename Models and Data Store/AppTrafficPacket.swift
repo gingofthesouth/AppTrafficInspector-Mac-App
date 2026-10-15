@@ -4,8 +4,9 @@
 //
 
 import Cocoa
+import Combine
 
-class AppTrafficPacket: Codable, Hashable {
+class AppTrafficPacket: Codable, Hashable, ObservableObject {
     var packetId: String?
 
     var requestInfo: AppTrafficRequestInfo?
@@ -18,6 +19,21 @@ class AppTrafficPacket: Codable, Hashable {
     var replayError: String?
 
     var isReplay: Bool { replayOfPacketId != nil }
+
+    /// Incremented whenever a later wire packet with the same `packetId` updates this transaction.
+    /// Views key async work on it because identity-based equality hides in-place updates from SwiftUI.
+    private(set) var revision = 0
+
+    let objectWillChange = ObservableObjectPublisher()
+
+    /// Applies a later packet for the same transaction without regressing already-received state.
+    func applyUpdate(from newer: AppTrafficPacket) {
+        objectWillChange.send()
+        if let incoming = newer.requestInfo {
+            requestInfo = requestInfo.map { $0.merged(with: incoming) } ?? incoming
+        }
+        revision += 1
+    }
 
     init() {}
 

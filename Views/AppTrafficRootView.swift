@@ -126,7 +126,7 @@ struct AppTrafficRootView: View {
             }
             .frame(minHeight: 180)
 
-            PacketDetailView(packet: store.selectedPacket)
+            PacketDetailView(packet: store.selectedPacket, revision: store.selectedPacket?.revision ?? 0)
                 .frame(minHeight: 200)
         }
     }
@@ -164,42 +164,7 @@ struct AppTrafficRootView: View {
             Button {
                 store.select(packet: transaction)
             } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: mediaSystemImage(for: transaction))
-                        .foregroundStyle(.secondary)
-                        .frame(width: 18)
-                    Text(transaction.requestInfo?.statusCode ?? "")
-                        .foregroundStyle(statusColor(for: transaction))
-                        .frame(width: 42, alignment: .leading)
-                    MethodBadge(method: transaction.requestInfo?.requestMethod)
-                        .frame(width: 58, alignment: .leading)
-                    VStack(alignment: .leading, spacing: 2) {
-                        HStack(spacing: 6) {
-                            if transaction.isReplay {
-                                Text("Replay")
-                                    .font(.caption2.weight(.semibold))
-                                    .padding(.horizontal, 5)
-                                    .padding(.vertical, 1)
-                                    .background(Color.accentColor.opacity(0.18), in: Capsule())
-                                    .foregroundStyle(transaction.replayError == nil ? Color.accentColor : .red)
-                                    .accessibilityIdentifier("replay-badge")
-                            }
-                            Text(transaction.requestInfo?.url ?? "")
-                                .lineLimit(1)
-                        }
-                        if let contentType = contentType(for: transaction) {
-                            Text(contentType)
-                                .font(.caption2)
-                                .foregroundStyle(.tertiary)
-                        }
-                    }
-                    Spacer()
-                    Text(transaction.requestInfo?.startDate?.readable ?? "")
-                        .foregroundStyle(.secondary)
-                        .frame(width: 150, alignment: .trailing)
-                }
-                .padding(.vertical, 4)
-                .contentShape(Rectangle())
+                TransactionRow(transaction: transaction)
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("transaction-row-\(transaction.packetId ?? "unknown")")
@@ -229,6 +194,51 @@ struct AppTrafficRootView: View {
         store.addressFilterTerm = ""
         store.methodFilterTerm = ""
         store.statusFilterTerm = ""
+    }
+}
+
+/// Observes its packet so in-place updates (e.g. the status code arriving after the request
+/// started) redraw the row; List diffing alone treats the same packet instance as unchanged.
+private struct TransactionRow: View {
+    @ObservedObject var transaction: AppTrafficPacket
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: mediaSystemImage(for: transaction))
+                .foregroundStyle(.secondary)
+                .frame(width: 18)
+            Text(transaction.requestInfo?.statusCode ?? "")
+                .foregroundStyle(statusColor(for: transaction))
+                .frame(width: 42, alignment: .leading)
+            MethodBadge(method: transaction.requestInfo?.requestMethod)
+                .frame(width: 58, alignment: .leading)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    if transaction.isReplay {
+                        Text("Replay")
+                            .font(.caption2.weight(.semibold))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1)
+                            .background(Color.accentColor.opacity(0.18), in: Capsule())
+                            .foregroundStyle(transaction.replayError == nil ? Color.accentColor : .red)
+                            .accessibilityIdentifier("replay-badge")
+                    }
+                    Text(transaction.requestInfo?.url ?? "")
+                        .lineLimit(1)
+                }
+                if let contentType = contentType(for: transaction) {
+                    Text(contentType)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+            Spacer()
+            Text(transaction.requestInfo?.startDate?.readable ?? "")
+                .foregroundStyle(.secondary)
+                .frame(width: 150, alignment: .trailing)
+        }
+        .padding(.vertical, 4)
+        .contentShape(Rectangle())
     }
 
     private func statusColor(for transaction: AppTrafficPacket) -> Color {

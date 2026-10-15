@@ -109,9 +109,9 @@ struct AppTrafficRequestInfo: Codable {
         requestMethod = try c.decodeIfPresent(RequestMethod.self, forKey: .requestMethod)
         responseHeaders = try c.decodeIfPresent([String: String].self, forKey: .responseHeaders)
         responseData = try c.decodeIfPresent(String.self, forKey: .responseData)
-        if let n = try c.decodeIfPresent(Int.self, forKey: .statusCode) {
+        if let n = try? c.decodeIfPresent(Int.self, forKey: .statusCode) {
             statusCode = String(n)
-        } else if let s = try c.decodeIfPresent(String.self, forKey: .statusCode) {
+        } else if let s = try? c.decodeIfPresent(String.self, forKey: .statusCode) {
             statusCode = s
         } else {
             statusCode = nil
@@ -122,6 +122,30 @@ struct AppTrafficRequestInfo: Codable {
         requestBodyOriginalByteCount = try? c.decodeIfPresent(Int.self, forKey: .requestBodyOriginalByteCount)
         responseDataTruncated = try? c.decodeIfPresent(Bool.self, forKey: .responseDataTruncated)
         responseDataOriginalByteCount = try? c.decodeIfPresent(Int.self, forKey: .responseDataOriginalByteCount)
+    }
+
+    var isComplete: Bool { endDate != nil }
+
+    /// Combines a later wire update for the same transaction with this one. Producers send a
+    /// transaction several times (start, response, finish) and frames can arrive out of order, so a
+    /// stale in-progress update must never erase a status code, headers, or body already received.
+    func merged(with newer: AppTrafficRequestInfo) -> AppTrafficRequestInfo {
+        if isComplete && !newer.isComplete { return self }
+        var result = newer
+        result.url = newer.url ?? url
+        result.requestHeaders = newer.requestHeaders ?? requestHeaders
+        result.requestBody = newer.requestBody ?? requestBody
+        result.requestMethod = newer.requestMethod ?? requestMethod
+        result.responseHeaders = newer.responseHeaders ?? responseHeaders
+        result.responseData = newer.responseData ?? responseData
+        result.statusCode = newer.statusCode ?? statusCode
+        result.startDate = newer.startDate ?? startDate
+        result.endDate = newer.endDate ?? endDate
+        result.requestBodyTruncated = newer.requestBodyTruncated ?? requestBodyTruncated
+        result.requestBodyOriginalByteCount = newer.requestBodyOriginalByteCount ?? requestBodyOriginalByteCount
+        result.responseDataTruncated = newer.responseDataTruncated ?? responseDataTruncated
+        result.responseDataOriginalByteCount = newer.responseDataOriginalByteCount ?? responseDataOriginalByteCount
+        return result
     }
 
     func encode(to encoder: Encoder) throws {

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		ATI100012F50000000000A006 /* BodyInspectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATI100002F50000000000A006 /* BodyInspectionTests.swift */; };
+		ATI100012F50000000000A007 /* PacketUpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATI100002F50000000000A007 /* PacketUpdateTests.swift */; };
 		ATI100012F50000000000A005 /* ReplayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATI100002F50000000000A005 /* ReplayService.swift */; };
 		ATI100012F50000000000A004 /* ReplayComparisonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATI100002F50000000000A004 /* ReplayComparisonView.swift */; };
 		ATI100012F50000000000A003 /* BodyInspectionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATI100002F50000000000A003 /* BodyInspectionViews.swift */; };
@@ -86,6 +87,7 @@
 
 /* Begin PBXFileReference section */
 		ATI100002F50000000000A006 /* BodyInspectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyInspectionTests.swift; sourceTree = "<group>"; };
+		ATI100002F50000000000A007 /* PacketUpdateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketUpdateTests.swift; sourceTree = "<group>"; };
 		ATI100002F50000000000A005 /* ReplayService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayService.swift; sourceTree = "<group>"; };
 		ATI100002F50000000000A004 /* ReplayComparisonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayComparisonView.swift; sourceTree = "<group>"; };
 		ATI100002F50000000000A003 /* BodyInspectionViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyInspectionViews.swift; sourceTree = "<group>"; };
@@ -295,6 +297,7 @@
 			children = (
 				BCD0E036210F5E0D00CE5C7B /* TrafficRedactorTests.swift */,
 				ATI100002F50000000000A006 /* BodyInspectionTests.swift */,
+				ATI100002F50000000000A007 /* PacketUpdateTests.swift */,
 			);
 			path = AppTrafficInspectorTests;
 			sourceTree = "<group>";
@@ -518,6 +521,7 @@
 			files = (
 				BCD0E037210F5E0D00CE5C7B /* TrafficRedactorTests.swift in Sources */,
 				ATI100012F50000000000A006 /* BodyInspectionTests.swift in Sources */,
+				ATI100012F50000000000A007 /* PacketUpdateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

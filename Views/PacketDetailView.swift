@@ -10,6 +10,8 @@ import AppKit
 
 struct PacketDetailView: View {
     let packet: AppTrafficPacket?
+    /// Packet revision at render time; a changed value forces a redraw when the same packet is updated in place.
+    var revision: Int = 0
     @State private var selected: DetailTab = .overview
     @State private var isReplaying = false
     @State private var confirmingReplay = false

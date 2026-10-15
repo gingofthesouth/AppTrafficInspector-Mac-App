@@ -47,7 +47,7 @@ class AppTrafficDevice: NSObject {
             
             if packet.packetId == newPacket.packetId {
                 
-                packet.requestInfo = newPacket.requestInfo
+                packet.applyUpdate(from: newPacket)
                 return false
             }
         }

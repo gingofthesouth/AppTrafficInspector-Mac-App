@@ -24,7 +24,7 @@ struct OverviewContentAsync: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .task(id: packet?.packetId ?? "") {
+        .task(id: "\(packet?.packetId ?? "")#\(packet?.revision ?? 0)") {
             resolvedOverview = nil
             let url = info.url
             let method = info.requestMethod?.rawValue
