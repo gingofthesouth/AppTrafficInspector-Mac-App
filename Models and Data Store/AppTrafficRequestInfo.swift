@@ -6,14 +6,37 @@
 import Cocoa
 import SwiftUI
 
-enum RequestMethod: String, Codable {
-    case get = "GET"
-    case post = "POST"
-    case put = "PUT"
-    case delete = "DELETE"
-    case patch = "PATCH"
-    case head = "HEAD"
-    
+/// HTTP method. Any token is accepted so packets using OPTIONS, CONNECT, TRACE, or custom
+/// methods decode instead of being dropped.
+struct RequestMethod: RawRepresentable, Codable, Hashable, Sendable {
+    let rawValue: String
+
+    init(rawValue: String) {
+        self.rawValue = rawValue.trimmingCharacters(in: .whitespaces).uppercased()
+    }
+
+    init(from decoder: Decoder) throws {
+        self.init(rawValue: try decoder.singleValueContainer().decode(String.self))
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+
+    static let get = RequestMethod(rawValue: "GET")
+    static let post = RequestMethod(rawValue: "POST")
+    static let put = RequestMethod(rawValue: "PUT")
+    static let delete = RequestMethod(rawValue: "DELETE")
+    static let patch = RequestMethod(rawValue: "PATCH")
+    static let head = RequestMethod(rawValue: "HEAD")
+    static let options = RequestMethod(rawValue: "OPTIONS")
+
+    /// Methods that are not safe to repeat without side effects (RFC 9110 §9.2.1).
+    var isUnsafe: Bool {
+        ![Self.get, .head, .options, RequestMethod(rawValue: "TRACE")].contains(self)
+    }
+
     func color() -> Color {
         switch self {
         case .get: return Color(nsColor: .systemTeal)
@@ -42,10 +65,40 @@ struct AppTrafficRequestInfo: Codable {
     var startDate: Date?
     var endDate: Date?
 
+    /// Optional producer truncation flags (AppTrafficInspectorKit). Absent means not truncated.
+    var requestBodyTruncated: Bool?
+    var requestBodyOriginalByteCount: Int?
+    var responseDataTruncated: Bool?
+    var responseDataOriginalByteCount: Int?
+
     enum CodingKeys: String, CodingKey {
         case url, requestHeaders, requestBody, requestMethod
         case responseHeaders, responseData, statusCode
         case startDate, endDate
+        case requestBodyTruncated, requestBodyOriginalByteCount
+        case responseDataTruncated, responseDataOriginalByteCount
+    }
+
+    init(
+        url: String? = nil,
+        requestHeaders: [String: String]? = nil,
+        requestBody: String? = nil,
+        requestMethod: RequestMethod? = nil,
+        responseHeaders: [String: String]? = nil,
+        responseData: String? = nil,
+        statusCode: String? = nil,
+        startDate: Date? = nil,
+        endDate: Date? = nil
+    ) {
+        self.url = url
+        self.requestHeaders = requestHeaders
+        self.requestBody = requestBody
+        self.requestMethod = requestMethod
+        self.responseHeaders = responseHeaders
+        self.responseData = responseData
+        self.statusCode = statusCode
+        self.startDate = startDate
+        self.endDate = endDate
     }
 
     init(from decoder: Decoder) throws {
@@ -65,6 +118,10 @@ struct AppTrafficRequestInfo: Codable {
         }
         startDate = try c.decodeIfPresent(Date.self, forKey: .startDate)
         endDate = try c.decodeIfPresent(Date.self, forKey: .endDate)
+        requestBodyTruncated = try? c.decodeIfPresent(Bool.self, forKey: .requestBodyTruncated)
+        requestBodyOriginalByteCount = try? c.decodeIfPresent(Int.self, forKey: .requestBodyOriginalByteCount)
+        responseDataTruncated = try? c.decodeIfPresent(Bool.self, forKey: .responseDataTruncated)
+        responseDataOriginalByteCount = try? c.decodeIfPresent(Int.self, forKey: .responseDataOriginalByteCount)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -78,5 +135,9 @@ struct AppTrafficRequestInfo: Codable {
         try c.encodeIfPresent(statusCode, forKey: .statusCode)
         try c.encodeIfPresent(startDate, forKey: .startDate)
         try c.encodeIfPresent(endDate, forKey: .endDate)
+        try c.encodeIfPresent(requestBodyTruncated, forKey: .requestBodyTruncated)
+        try c.encodeIfPresent(requestBodyOriginalByteCount, forKey: .requestBodyOriginalByteCount)
+        try c.encodeIfPresent(responseDataTruncated, forKey: .responseDataTruncated)
+        try c.encodeIfPresent(responseDataOriginalByteCount, forKey: .responseDataOriginalByteCount)
     }
 }

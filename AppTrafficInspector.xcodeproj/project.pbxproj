@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		ATI100012F50000000000A006 /* BodyInspectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATI100002F50000000000A006 /* BodyInspectionTests.swift */; };
+		ATI100012F50000000000A005 /* ReplayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATI100002F50000000000A005 /* ReplayService.swift */; };
+		ATI100012F50000000000A004 /* ReplayComparisonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATI100002F50000000000A004 /* ReplayComparisonView.swift */; };
+		ATI100012F50000000000A003 /* BodyInspectionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATI100002F50000000000A003 /* BodyInspectionViews.swift */; };
+		ATI100012F50000000000A002 /* BodyExportStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATI100002F50000000000A002 /* BodyExportStore.swift */; };
+		ATI100012F50000000000A001 /* BodyParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATI100002F50000000000A001 /* BodyParsing.swift */; };
 		1729C6272F42AD5200E94E4D /* OverviewContentAsync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1729C6262F42AD5200E94E4D /* OverviewContentAsync.swift */; };
 		1729C6292F42AE1900E94E4D /* BodyViewAsync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1729C6282F42AE1900E94E4D /* BodyViewAsync.swift */; };
 		1729C62D2F42B20800E94E4D /* BodyDisplayResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1729C62B2F42B20800E94E4D /* BodyDisplayResult.swift */; };
@@ -79,6 +85,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		ATI100002F50000000000A006 /* BodyInspectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyInspectionTests.swift; sourceTree = "<group>"; };
+		ATI100002F50000000000A005 /* ReplayService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayService.swift; sourceTree = "<group>"; };
+		ATI100002F50000000000A004 /* ReplayComparisonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayComparisonView.swift; sourceTree = "<group>"; };
+		ATI100002F50000000000A003 /* BodyInspectionViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyInspectionViews.swift; sourceTree = "<group>"; };
+		ATI100002F50000000000A002 /* BodyExportStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyExportStore.swift; sourceTree = "<group>"; };
+		ATI100002F50000000000A001 /* BodyParsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyParsing.swift; sourceTree = "<group>"; };
 		1729C6262F42AD5200E94E4D /* OverviewContentAsync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewContentAsync.swift; sourceTree = "<group>"; };
 		1729C6282F42AE1900E94E4D /* BodyViewAsync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyViewAsync.swift; sourceTree = "<group>"; };
 		1729C62B2F42B20800E94E4D /* BodyDisplayResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyDisplayResult.swift; sourceTree = "<group>"; };
@@ -171,6 +183,7 @@
 				17EAB4342F3FDE02001C56F9 /* BonjourSingleInterfaceRegistrar.swift */,
 				BCA60B40216201B900B9DCAD /* AppTrafficConfiguration.swift */,
 				17EAB4312F3FDE02001C56F8 /* NetworkInterfaceDetector.swift */,
+				ATI100002F50000000000A005 /* ReplayService.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -182,6 +195,8 @@
 				1729C6262F42AD5200E94E4D /* OverviewContentAsync.swift */,
 				1729C6282F42AE1900E94E4D /* BodyViewAsync.swift */,
 				1729C62B2F42B20800E94E4D /* BodyDisplayResult.swift */,
+				ATI100002F50000000000A004 /* ReplayComparisonView.swift */,
+				ATI100002F50000000000A003 /* BodyInspectionViews.swift */,
 				17DBCF192E9F57D700F5C257 /* JSONTextView.swift */,
 				17DBCF1F2E9F656F00F5C257 /* EmptyBodyView.swift */,
 				17DBCF232E9F657E00F5C257 /* EmptyStateView.swift */,
@@ -204,6 +219,8 @@
 				17DBCF252E9F65C700F5C257 /* JSONHighlighter.swift */,
 				MCP001002E9F35B300F5C259 /* DevLogger.swift */,
 				MCP004002E9F35B300F5C262 /* PacketFormatting.swift */,
+				ATI100002F50000000000A002 /* BodyExportStore.swift */,
+				ATI100002F50000000000A001 /* BodyParsing.swift */,
 			);
 			path = "Utilities and Extensions";
 			sourceTree = "<group>";
@@ -277,6 +294,7 @@
 			isa = PBXGroup;
 			children = (
 				BCD0E036210F5E0D00CE5C7B /* TrafficRedactorTests.swift */,
+				ATI100002F50000000000A006 /* BodyInspectionTests.swift */,
 			);
 			path = AppTrafficInspectorTests;
 			sourceTree = "<group>";
@@ -477,6 +495,11 @@
 				MCP00A012E9F35B300F5C268 /* ControlTools.swift in Sources */,
 				MCP00B012E9F35B300F5C269 /* DiagnosticTools.swift in Sources */,
 				1729C6292F42AE1900E94E4D /* BodyViewAsync.swift in Sources */,
+				ATI100012F50000000000A005 /* ReplayService.swift in Sources */,
+				ATI100012F50000000000A004 /* ReplayComparisonView.swift in Sources */,
+				ATI100012F50000000000A003 /* BodyInspectionViews.swift in Sources */,
+				ATI100012F50000000000A002 /* BodyExportStore.swift in Sources */,
+				ATI100012F50000000000A001 /* BodyParsing.swift in Sources */,
 				MCP00D012E9F35B300F5C26B /* MCPServerStatus.swift in Sources */,
 				1729C62D2F42B20800E94E4D /* BodyDisplayResult.swift in Sources */,
 				1729C6272F42AD5200E94E4D /* OverviewContentAsync.swift in Sources */,
@@ -494,6 +517,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BCD0E037210F5E0D00CE5C7B /* TrafficRedactorTests.swift in Sources */,
+				ATI100012F50000000000A006 /* BodyInspectionTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -724,7 +748,7 @@
 				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = NO;
-				ENABLE_USER_SELECTED_FILES = readonly;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -774,7 +798,7 @@
 				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = NO;
-				ENABLE_USER_SELECTED_FILES = readonly;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",

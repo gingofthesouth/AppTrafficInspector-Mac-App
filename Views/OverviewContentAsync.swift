@@ -32,6 +32,8 @@ struct OverviewContentAsync: View {
             let requestHeaders = info.requestHeaders
             let requestBodyBase64 = info.requestBody
             let responseDataBase64 = info.responseData
+            let requestContentType = HTTPHeaders.value("Content-Type", in: info.requestHeaders)
+            let responseContentType = HTTPHeaders.value("Content-Type", in: info.responseHeaders)
             let result = await Task.detached(priority: .userInitiated) {
                 await resolveOverview(
                     url: url,
@@ -39,7 +41,9 @@ struct OverviewContentAsync: View {
                     statusCode: statusCode,
                     requestHeaders: requestHeaders,
                     requestBodyBase64: requestBodyBase64,
-                    responseDataBase64: responseDataBase64
+                    responseDataBase64: responseDataBase64,
+                    requestContentType: requestContentType,
+                    responseContentType: responseContentType
                 )
             }.value
             resolvedOverview = result
@@ -53,7 +57,9 @@ struct OverviewContentAsync: View {
         statusCode: String?,
         requestHeaders: [String: String]?,
         requestBodyBase64: String?,
-        responseDataBase64: String?
+        responseDataBase64: String?,
+        requestContentType: String? = nil,
+        responseContentType: String? = nil
     ) -> String {
         
         var overviewText = ""
@@ -72,11 +78,11 @@ struct OverviewContentAsync: View {
             overviewText += "Request Headers:\n" + headerStr + "\n\n"
         }
         
-        let reqBodyResult = requestBodyBase64?.convertBase64ToPrettyJson() ?? .empty
+        let reqBodyResult = requestBodyBase64?.convertBase64ToPrettyJson(contentType: requestContentType) ?? .empty
         let reqBodyStr = reqBodyResult.bodyDisplayResultToOverviewString()
         if !reqBodyStr.isEmpty { overviewText += "Request Body:\n" + reqBodyStr + "\n\n" }
         
-        let respBodyResult = responseDataBase64?.convertBase64ToPrettyJson() ?? .empty
+        let respBodyResult = responseDataBase64?.convertBase64ToPrettyJson(contentType: responseContentType) ?? .empty
         let respBodyStr = respBodyResult.bodyDisplayResultToOverviewString()
         if !respBodyStr.isEmpty { overviewText += "Response Body:\n" + respBodyStr }
         

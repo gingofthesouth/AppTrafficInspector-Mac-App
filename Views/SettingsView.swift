@@ -12,6 +12,8 @@ struct SettingsView: View {
     @AppStorage(TrafficRedactor.redactionModeKey) private var redactionModeRaw = RedactionMode.strict.rawValue
     @ObservedObject private var mcpStatus = MCPServerStatus.shared
     @ObservedObject private var listenerStatus = TrafficListenerStatus.shared
+    @ObservedObject private var exportStore = BodyExportStore.shared
+    @State private var clearedCount: Int?
 
 
     var body: some View {
@@ -59,6 +61,31 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            Section("Body Export") {
+                LabeledContent("Folder") {
+                    Text(exportStore.folderURL.path)
+                        .font(.system(.body, design: .monospaced))
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                        .textSelection(.enabled)
+                        .accessibilityIdentifier("export-folder-path")
+                }
+                HStack {
+                    Button("Choose…") { exportStore.chooseFolder() }
+                    Button("Use Default") { exportStore.resetToDefault() }
+                        .disabled(!exportStore.isCustomFolder)
+                    Button("Show in Finder") { exportStore.revealInFinder() }
+                    Spacer()
+                    Button("Clear Exported Files") { clearedCount = exportStore.clearExportedFiles() }
+                }
+                if let clearedCount {
+                    Text("Removed \(clearedCount) exported transaction folder\(clearedCount == 1 ? "" : "s").")
+                        .foregroundStyle(.secondary)
+                }
+                Text("When you copy cURL for a binary or multipart body, the body is saved here and the command references it with @file. Files stay until you clear them.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
             Section("Privacy") {
                 Picker("Redaction mode", selection: $redactionModeRaw) {
                     Text("Strict").tag(RedactionMode.strict.rawValue)
@@ -75,7 +102,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(minWidth: 460, minHeight: 390)
+        .frame(minWidth: 520, minHeight: 520)
     }
 }
 

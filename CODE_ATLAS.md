@@ -1,8 +1,8 @@
 # App Traffic Inspector Code Atlas
 
-> **Atlas version:** 1.1  
-> **Derived:** 2026-09-17  
-> **Source revision:** unavailable — this folder is not a Git worktree  
+> **Atlas version:** 1.3  
+> **Derived:** 2026-10-15  
+> **Source revision:** Git worktree based on `2f05199` plus the uncommitted media/cURL/replay changes  
 > **Scope:** the files present at the repository root on the derived date
 
 This atlas describes the repository as found. Paths are repository-relative. Line citations point
@@ -16,18 +16,18 @@ copy rather than an explicit product specification.
 | Product | Native macOS network-traffic viewer for traffic reported by iOS apps | `README.md:1-8` |
 | Primary language | Swift 6.0 | `grep -n 'SWIFT_VERSION' AppTrafficInspector.xcodeproj/project.pbxproj` → `6.0` at `AppTrafficInspector.xcodeproj/project.pbxproj:425,438,612,662` |
 | Other executable language | Bash | `find . -type f` → `Scripts/run_acceptance_tests.sh` |
-| App target Swift files | 46 | `find . -type f -name '*.swift' -not -path './.build/*' -not -path './AppTrafficInspectorTests/*' -not -path './AppTrafficInspectorUITests/*' -not -path './Scripts/*' -not -path './SwiftUI/*' -not -path './Base/*' \| wc -l` |
-| App target Swift LOC | 4,603 | Same app-target `find` expression with `-print0 \| xargs -0 wc -l \| tail -1` |
-| Unit-test Swift LOC | 258 | `find AppTrafficInspectorTests -type f -name '*.swift' -print0 \| xargs -0 wc -l` |
-| UI-test Swift LOC | 77 | `find AppTrafficInspectorUITests -type f -name '*.swift' -print0 \| xargs -0 wc -l` |
-| All Swift LOC, including tests and non-target support | 5,275 | `find . -type f -name '*.swift' -not -path './.build/*' -print0 \| xargs -0 wc -l \| tail -1` |
+| App target Swift files | 51 | `find . -type f -name '*.swift' -not -path './.build/*' -not -path './AppTrafficInspectorTests/*' -not -path './AppTrafficInspectorUITests/*' -not -path './Scripts/*' -not -path './SwiftUI/*' -not -path './Base/*' \| wc -l` |
+| App target Swift LOC | 6,182 | Same app-target `find` expression with `-print0 \| xargs -0 wc -l \| tail -1` |
+| Unit-test Swift LOC | 559 | `find AppTrafficInspectorTests -type f -name '*.swift' -print0 \| xargs -0 wc -l` |
+| UI-test Swift LOC | 134 | `find AppTrafficInspectorUITests -type f -name '*.swift' -print0 \| xargs -0 wc -l` |
+| All Swift LOC, including tests and non-target support | 7,212 | `find . -type f -name '*.swift' -not -path './.build/*' -print0 \| xargs -0 wc -l \| tail -1` |
 | Native targets | 3: app, unit tests, and UI tests | `xcodebuild -project AppTrafficInspector.xcodeproj -list -json`; target declarations at `AppTrafficInspector.xcodeproj/project.pbxproj:321-374` |
 | Build configurations | Debug, Release | `xcodebuild -project AppTrafficInspector.xcodeproj -list -json` |
 | Schemes | `AppTrafficInspector` | `xcodebuild -project AppTrafficInspector.xcodeproj -list -json` |
 | External package dependencies | 0 | `grep -c 'XCRemoteSwiftPackageReference' AppTrafficInspector.xcodeproj/project.pbxproj` → `0`; framework phases are empty at `AppTrafficInspector.xcodeproj/project.pbxproj:114-129` |
 | System link dependency | `libsystem_dnssd` | `AppTrafficInspector.xcodeproj/project.pbxproj:608,658` |
-| Unit tests | 19 Swift Testing cases | `grep -Rh '@Test' AppTrafficInspectorTests --include='*.swift' \| wc -l` → `19` |
-| UI journeys | 1 XCTest journey | `find AppTrafficInspectorUITests/Journeys -name '*.swift' -exec grep -h 'func test' {} + \| wc -l` → `1` |
+| Unit tests | 39 Swift Testing cases | `grep -Rh '@Test' AppTrafficInspectorTests --include='*.swift' \| wc -l` → `39` |
+| UI journeys | 3 XCTest journeys | `find AppTrafficInspectorUITests/Journeys -name '*.swift' -exec grep -h 'func test' {} + \| wc -l` → `3` |
 | Acceptance checks | 14 possible pass assertions | `grep -c 'passed += 1' Scripts/mcp_acceptance_test.swift` → `14` |
 | Production MCP tools | 14 | Count registrations outside `#if DEBUG` in `MCP/MCPServer.swift:48-70` |
 | Debug MCP tools | 17 | `awk '/private func registerTools\\(\\)/,/^    }/' MCP/MCPServer.swift \| grep -c 'toolRegistry.register'` → `17` |
@@ -40,8 +40,9 @@ copy rather than an explicit product specification.
 | App version metadata | 1.0.1 / build 101 | `Info.plist:21-24`; `MARKETING_VERSION = 1.0.1` in `AppTrafficInspector.xcodeproj/project.pbxproj:745,795` |
 
 **Repository shape.** There is one Xcode project, no Swift package manifest, no dependency manager
-lockfile, no CI directory, and no Git metadata in this folder. The app uses Apple frameworks
-(`SwiftUI`, `AppKit`/`Cocoa`, `Network`, `Foundation`, `SystemConfiguration`, `Darwin`, `os`) and the
+lockfile, and no CI directory. The folder is a Git worktree. The app uses Apple frameworks
+(`SwiftUI`, `AppKit`/`Cocoa`, `Network`, `Foundation`, `SystemConfiguration`, `Darwin`, `os`,
+`AVKit`, `PDFKit`, `UniformTypeIdentifiers`) and the
 system DNS-SD library.
 
 ## 2. Architectural Overview
@@ -123,14 +124,15 @@ HTTP transaction, and where does MCP join that flow?*
 
 | Target | Type | Sources/resources | Debug vs Release |
 |---|---|---|---|
-| `App Traffic Inspector` | macOS application | 46 Swift source files in the PBX sources phase; `Assets.xcassets`; `Info.plist`; entitlements | Debug defines `DEBUG`; Release is optimized |
-| `AppTrafficInspectorTests` | Unit-test bundle hosted by the app | `TrafficRedactorTests.swift` only | Both configurations use Swift 6.0, macOS 26.0, bundle ID `nz.ging.AppTrafficInspectorTests` (`AppTrafficInspector.xcodeproj/project.pbxproj:417-441`) |
-| `AppTrafficInspectorUITests` | UI-test runner | Screen object, environment launcher, and media journey | macOS 26.0, bundle ID `nz.ging.AppTrafficInspectorUITests`; target at `AppTrafficInspector.xcodeproj/project.pbxproj:357-372` |
+| `App Traffic Inspector` | macOS application | 51 Swift source files in the PBX sources phase; `Assets.xcassets`; `Info.plist`; entitlements | Debug defines `DEBUG`; Release is optimized |
+| `AppTrafficInspectorTests` | Unit-test bundle hosted by the app | `TrafficRedactorTests.swift` and `BodyInspectionTests.swift` | Both configurations use Swift 6.0, macOS 26.0, bundle ID `nz.ging.AppTrafficInspectorTests` (`AppTrafficInspector.xcodeproj/project.pbxproj:417-441`) |
+| `AppTrafficInspectorUITests` | UI-test runner | Screen object, environment launcher, and media/upload/replay journeys | macOS 26.0, bundle ID `nz.ging.AppTrafficInspectorUITests`; target at `AppTrafficInspector.xcodeproj/project.pbxproj:357-372` |
 
-Both app configurations use bundle ID `nz.ging.AppTrafficInspector`, the same plist and empty
+Both app configurations use bundle ID `nz.ging.AppTrafficInspector`, the same plist and
 entitlements file, automatic signing with an empty team, app sandbox, hardened runtime, incoming and
-outgoing networking, and read-only user-selected files (`AppTrafficInspector.xcodeproj/project.pbxproj:566-665`;
-`AppTrafficInspector.entitlements:1-5`). The target links DNS-SD using `-lsystem_dnssd`; there are no
+outgoing networking, and read-write user-selected files (`ENABLE_USER_SELECTED_FILES = readwrite`).
+The entitlements file adds Downloads read-write and app-scoped security bookmarks, used by the cURL
+body export folder (`AppTrafficInspector.entitlements`; `Utilities and Extensions/BodyExportStore.swift`). The target links DNS-SD using `-lsystem_dnssd`; there are no
 embedded third-party frameworks.
 
 Debug adds three mutating MCP tools—`restart_listener`, `clear_packets`, and `inject_test_packet`—
@@ -166,10 +168,12 @@ xcodebuild -project AppTrafficInspector.xcodeproj \
   -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO \
   -only-testing:AppTrafficInspectorTests test
 
-# Deterministic UI journey (requires macOS Automation permission)
+# Deterministic UI journeys (require signing and macOS Automation permission;
+# use a separate -derivedDataPath from unsigned builds to avoid a stale runner)
 xcodebuild -project AppTrafficInspector.xcodeproj \
   -scheme AppTrafficInspector \
-  -destination 'platform=macOS' \
+  -destination 'platform=macOS,arch=arm64' \
+  -derivedDataPath .build/dd-ui \
   -only-testing:AppTrafficInspectorUITests/MediaTransactionJourneyTests test
 
 # Build, launch, exercise MCP, and quit
@@ -202,6 +206,7 @@ references the concrete `AppTrafficInspectorUITests` target.
 | AppTrafficKit docs URL | Compile-time optional, currently `nil` | `Views/QuickStartView.swift:12,82-91` | `nil` renders “not set yet” copy |
 | Traffic port/service | Compile-time constants | `Network/AppTrafficConfiguration.swift:10-17` | No override |
 | MCP port/path | Compile-time constants | `MCP/MCPServer.swift:10-11` | No override |
+| `bodyExportFolderBookmark` | Runtime security-scoped bookmark, default absent (folder `~/Downloads/AppTrafficInspector`) | `Utilities and Extensions/BodyExportStore.swift`; `Views/SettingsView.swift` | Bookmark if present and resolvable, otherwise the default folder; UI tests use a temporary folder |
 | Debug capabilities | Compile-time `DEBUG` | `MCP/MCPServer.swift:67-71`; `Utilities and Extensions/DevLogger.swift:11-56` | Xcode `SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG` |
 
 There is no layered config loader, environment-variable lookup, `.xcconfig`, remote flag service, or
@@ -212,8 +217,8 @@ runtime base-URL selection. Resolution is therefore: compiled constant or build 
 
 No required secret or variable names were found. There are no API keys, auth client IDs, signing
 secrets, generated secret files, CI variable references, `.env` files, or Keychain calls. The app
-target has an empty development team and an empty entitlements plist
-(`AppTrafficInspector.xcodeproj/project.pbxproj:576,626`; `AppTrafficInspector.entitlements:1-5`).
+target has an empty development team; the entitlements plist holds only file-access capabilities
+(`AppTrafficInspector.entitlements`).
 
 `.gitignore` excludes `.DS_Store`, workspace-local build data, DerivedData, `*.xcuserstate`, and
 `xcuserdata/`. Missing runtime preferences use the defaults in the table; missing network interfaces
@@ -237,7 +242,7 @@ before other calls (`MCP/MCPServer.swift:14-18,221-245`).
 | iOS producer → traffic listener | 8-byte framed payload; transaction capped at 25 MiB (`Network/AppTrafficConfiguration.swift:18`; `Network/AppTrafficPublisher.swift:204`) | Plain TCP, no TLS, mTLS, pinning, authentication, or payload signature |
 | Bonjour advertisement | Restricted to the selected interface through DNS-SD (`Network/BonjourSingleInterfaceRegistrar.swift:62-119`) | Service advertises ingest availability on the LAN |
 | MCP client → MCP server | Explicit `127.0.0.1` bind; exact loopback Origin validation; 64 KiB headers and 2 MiB bodies; consistent export redaction (`MCP/MCPServer.swift:80,203-220`; `MCP/MCPHTTPParser.swift:17-18,30-35,64-72`; `MCP/Tools/TrafficTools.swift:113-115,144-150,198-200,246-254`) | Plain HTTP; no auth; absent Origin accepted; `OPTIONS` returns wildcard CORS |
-| App sandbox | Sandbox and hardened runtime enabled in build settings (`AppTrafficInspector.xcodeproj/project.pbxproj:577-580,627-630`) | Entitlements file is empty; effective capabilities come from build settings |
+| App sandbox | Sandbox and hardened runtime enabled in build settings (`AppTrafficInspector.xcodeproj/project.pbxproj:577-580,627-630`) | Entitlements add Downloads read-write and app-scoped bookmarks; other capabilities come from build settings |
 | Exported transaction data | Strict redaction is default and is applied to detail, search URLs, and cURL output (`MCP/TrafficRedactor.swift:144-177`; `MCP/Tools/TrafficTools.swift:113-115,144-150,198-200,246-254`) | `moderate` redacts headers only; `off` intentionally exposes raw data |
 
 No ATS exception is declared. `Info.plist` contains `ATSApplicationFontsPath`, not
@@ -251,6 +256,8 @@ framework listeners.
 | High | Unauthenticated ingest | Arbitrary reachable clients can submit packet-shaped JSON to port 43435 | `Network/AppTrafficPublisher.swift:64-72,104-109,144-195` |
 | Medium | Optional Origin | Exact loopback Origins are enforced when supplied, but clients without an Origin header are accepted | `MCP/MCPServer.swift:203-220` |
 | Medium | In-memory sensitive payloads | Full request/response headers and base64 bodies remain in mutable memory until evicted, cleared, or exit | `Models and Data Store/AppTrafficRequestInfo.swift:31-42`; retention limits at `Models and Data Store/AppTrafficDevice.swift:9-10,61-76` |
+| Medium | Replay | Re-sends captured requests from the Mac with captured `Cookie`/`Authorization` headers; unsafe methods need a once-per-launch confirmation; only http/https; no redirects, cookie storage, or cache | `Network/ReplayService.swift`; `Views/PacketDetailView.swift` |
+| Medium | cURL body export | Writes request bodies, possibly sensitive, to the export folder in plaintext; cleared only on request | `Utilities and Extensions/BodyExportStore.swift`; `Utilities and Extensions/PacketFormatting.swift` |
 | Low | Logs | MCP session IDs and request summaries enter an in-memory UI-visible log in Debug | `MCP/MCPServer.swift:230-233`; `MCP/MCPActivityLog.swift:34-43` |
 
 ## 6. Networking / IO Layer
@@ -282,6 +289,23 @@ framework listeners.
 
 There is no application-level retry, request/response exchange, compression, backpressure, durable
 queue, or network reachability observer for producer traffic.
+
+Decoded packets enter the graph through `AppTrafficController.ingest(_:)`, which replay and UI-test
+fixtures also use. AppTrafficInspectorKit may add optional `requestBodyTruncated`,
+`requestBodyOriginalByteCount`, `responseDataTruncated`, and `responseDataOriginalByteCount` fields;
+they are decoded tolerantly and shown as truncation notices; cURL output gains a `# Warning` line and
+Replay always asks for confirmation when the request body is truncated. Background `URLSession` traffic is not
+captured by the Kit.
+
+### Replay pipeline
+
+`ReplayRequestBuilder` rebuilds a `URLRequest` from the captured method, URL, headers, and raw body,
+dropping hop-by-hop and length headers (`Host`, `Content-Length`, `Connection`, `Transfer-Encoding`,
+`Expect`, and similar) and rejecting non-http(s) URLs. `ReplayService` sends it on an ephemeral
+`URLSession` with no cookie storage or cache and a delegate that refuses redirects, then ingests the
+result as a new packet (`replay-<UUID>`) whose `replayOfPacketId` links to the original and whose
+`replayError` records transport failures. Replay fields are local only and never encoded
+(`Network/ReplayService.swift`; `Models and Data Store/AppTrafficPacket.swift`).
 
 ### MCP pipeline
 
@@ -325,7 +349,10 @@ style globals created at first access.
 | `AppTrafficRequestInfo` | Codable HTTP observation | Custom status-code decoder accepts number or legacy string | `Models and Data Store/AppTrafficRequestInfo.swift:29-82` |
 | `AppTrafficProject` | Groups devices by ID, then project/name fallback | Mutable domain node | `Models and Data Store/AppTrafficProject.swift:8-52` |
 | `AppTrafficDevice` | Deduplicates transactions, owns selection, and evicts oldest data beyond 1,000 transactions or 250 MiB | Mutable domain node | `Models and Data Store/AppTrafficDevice.swift:8-76` |
-| `RequestMethod` | Six supported HTTP verbs and display colors | Wire enum/UI concern | `Models and Data Store/AppTrafficRequestInfo.swift:9-27` |
+| `RequestMethod` | Open `RawRepresentable` struct: known verbs as static members, any other method (OPTIONS, TRACE, custom) decodes; `isUnsafe` and display colors | Wire value/UI concern | `Models and Data Store/AppTrafficRequestInfo.swift` |
+| `ReplayRequestBuilder` / `ReplayService` | Rebuild and resend a captured request; ingest the result as a linked replay packet | Outbound adapter | `Network/ReplayService.swift` |
+| `BodyParsing` | Multipart (incl. `filename*`), URL-encoded form, embedded base64 media, and signature sniffing | Pure parsing utilities | `Utilities and Extensions/BodyParsing.swift` |
+| `BodyExportStore` | Export folder selection, security-scoped bookmark, per-transaction body files | `@MainActor` singleton | `Utilities and Extensions/BodyExportStore.swift` |
 | `AppTrafficPublisher` | TCP lifecycle, framing, decoding | Inbound adapter, delegate source | `Network/AppTrafficPublisher.swift:14-228` |
 | `NetworkInterfaceDetector` | Enumerates and ranks host interfaces | Infrastructure helper | `Network/NetworkInterfaceDetector.swift:32-137` |
 | `BonjourSingleInterfaceRegistrar` | Publishes DNS-SD on one interface | C API adapter | `Network/BonjourSingleInterfaceRegistrar.swift:54-132` |
@@ -355,11 +382,13 @@ style globals created at first access.
 |---|---|---|---|
 | `AppTrafficRootView` | Native macOS project/device/transaction navigation, filters, and capture health | `AppTrafficStore`, `PacketDetailView`, `CaptureStatusPill` | `Views/AppTrafficRootView.swift` |
 | `GlassPanel` / `CaptureStatusPill` / `MethodBadge` | Discrete macOS 26 toolbar pill, semantic method badge, and reusable panel | SwiftUI `.glassEffect` | `Views/GlassComponents.swift` |
-| `PacketDetailView` | Six-tab transaction details with native segmented picker; opens response body for media | `PacketFormatting`, async body/overview views | `Views/PacketDetailView.swift` |
-| `BodyViewAsync` | Bounded base64/JSON/media rendering with image zoom and AVKit playback | `BodyDisplayResult`, `MediaPayload`, `JSONTextView` | `Views/BodyViewAsync.swift:11-287` |
+| `PacketDetailView` | Six-tab transaction details (plus Compare for replays); opens on Compare, media response, or media/multipart request; Copy, cURL, and Replay (⌘R) actions | `PacketFormatting`, `ReplayService`, `BodyExportStore`, async body/overview views | `Views/PacketDetailView.swift` |
+| `ReplayComparisonView` | Status/duration/size metrics, header diff, and side-by-side response bodies | `ReplayComparison`, `BodyViewAsync` | `Views/ReplayComparisonView.swift` |
+| Body inspection views | Multipart parts, form fields, embedded-media JSON, and hex binary views | `BodyParsing`, `MediaPreviewView` | `Views/BodyInspectionViews.swift` |
+| `BodyViewAsync` | Bounded base64 body routing to JSON, text, media (image zoom, AVKit, PDFKit), multipart, form, embedded media, or binary; truncation notices | `BodyDisplayResult`, `BodyParsing`, `MediaPayload`, `JSONTextView` | `Views/BodyViewAsync.swift` |
 | `OverviewContentAsync` | Off-main overview construction | Packet/request values, `JSONTextView` | `Views/OverviewContentAsync.swift:13-85` |
 | `JSONTextView` | Selectable attributed JSON text | AppKit bridge | `Views/JSONTextView.swift:11-49` |
-| `SettingsView` | MCP enablement, status, privacy mode | AppStorage and server status singleton | `Views/SettingsView.swift:8-72` |
+| `SettingsView` | MCP enablement, status, privacy mode, and body export folder | AppStorage, server status singleton, `BodyExportStore` | `Views/SettingsView.swift` |
 | `MCPConsoleView` | Filterable activity log window | Activity-log singleton | `Views/MCPConsoleView.swift:10-128` |
 | `QuickStartView` | First-run setup guide | AppTraffic configuration | `Views/QuickStartView.swift:8-106` |
 
@@ -385,6 +414,8 @@ erDiagram
     }
     APP_TRAFFIC_PACKET {
         string packetId
+        string replayOfPacketId_local
+        string replayError_local
     }
     APP_TRAFFIC_REQUEST_INFO {
         string url
@@ -406,7 +437,9 @@ flowchart LR
     Project --> Device["Device sidebar"]
     Device --> Transactions["Transaction list + filters"]
     Transactions --> Detail["Overview / request / response tabs"]
-    Detail --> Media["Image, video, or audio preview"]
+    Detail --> Media["Image, video, audio, PDF, multipart, form, or binary view"]
+    Detail --> Replay["Replay → Compare tab"]
+    Detail --> Curl["cURL → export folder"]
 ```
 
 *This diagram answers: where does a user navigate to reach transaction details and media previews?*
@@ -446,8 +479,9 @@ surfaces.
 |---|---|---|---|
 | **iOS developer — inspect traffic** (**inferred**) | Launch app → producer discovers Bonjour → sends framed JSON → select project/device/transaction → inspect tabs | `Network/AppTrafficPublisher.swift`; `AppTrafficController.swift`; `Views/AppTrafficRootView.swift`; `Views/PacketDetailView.swift` | Transaction ≤ 25 MiB (`Network/AppTrafficConfiguration.swift:18`); each device retains at most 1,000 transactions and 250 MiB (`Models and Data Store/AppTrafficDevice.swift:9-10,61-76`); packet ID updates the existing record |
 | **iOS developer — narrow traffic** (**inferred**) | Enter URL/status/method terms → store recomputes packet list | `Views/AppTrafficRootView.swift:111-136`; `Models and Data Store/AppTrafficStore.swift:99-125` | Address/status use case-sensitive substring; method is case-insensitive; whitespace-only status matches empty statuses |
-| **iOS developer — inspect payload** (**inferred**) | Select detail tab → decode base64 off-main → pretty-print text/JSON or preview image/video/audio | `Views/PacketDetailView.swift`; `Views/BodyViewAsync.swift` | Decoded media is capped at 25 MiB (`Views/BodyViewAsync.swift:78-90`); image/video/audio MIME types take precedence, with PNG/JPEG/GIF/MP4 signature fallback |
-| **iOS developer — copy/replay** (**inferred**) | Copy selected tab or generate cURL | `Views/PacketDetailView.swift`; `Utilities and Extensions/PacketFormatting.swift` | URL, headers, and body are POSIX shell-quoted; cookies are omitted; GET and HEAD do not add `-X`; HEAD adds `--head` |
+| **iOS developer — inspect payload** (**inferred**) | Select detail tab → decode base64 off-main → pretty-print text/JSON or preview image/video/audio | `Views/PacketDetailView.swift`; `Views/BodyViewAsync.swift` | Decoded media is capped at 25 MiB; declared MIME types take precedence, with signature sniffing fallback; multipart, form, and base64-in-JSON bodies get dedicated views; producer truncation and short `Content-Length` show notices |
+| **iOS developer — copy as cURL** | Copy selected tab or generate cURL on any tab | `Views/PacketDetailView.swift`; `Utilities and Extensions/PacketFormatting.swift`; `Utilities and Extensions/BodyExportStore.swift` | POSIX shell-quoted; `Cookie` kept, `Content-Length` dropped (and `Content-Type` for multipart); text bodies use `--data-raw`, multipart uses `-F`/`--form-string`, binary bodies and file parts are written to `<export folder>/transaction-<id>/` and referenced with `@file`; GET without body omits `-X`; HEAD adds `--head`. MCP cURL stays text-only with a note for omitted binary bodies |
+| **iOS developer — replay** | Replay (⌘R) → confirm if unsafe → new Replay packet selected on Compare tab | `Views/PacketDetailView.swift`; `Network/ReplayService.swift`; `Views/ReplayComparisonView.swift` | Unsafe methods (not GET/HEAD/OPTIONS/TRACE) confirmed once per launch; replaying a replay resends the original; http/https only; no redirects |
 | **First-time user — onboarding** (**inferred**) | Launch → versioned Quick Start sheet → continue stores completion | `Views/AppTrafficRootView.swift:13-20,45-65`; `Views/QuickStartView.swift` | Guide reappears when compiled guide version exceeds saved version |
 | **AI-tool user — query traffic** (**inferred**) | Enable MCP → initialize → list/call tools → optionally subscribe to SSE | `Views/SettingsView.swift`; `AppDelegate.swift`; `MCP/MCPServer.swift`; `MCP/Tools/TrafficTools.swift` | Detail output uses selected privacy mode; Debug adds mutation tools |
 | **AI-tool user — change privacy** (**inferred**) | Call `set_redaction_mode` or use Settings picker | `MCP/Tools/DiagnosticTools.swift:41-73`; `Views/SettingsView.swift:47-59` | Only `strict`, `moderate`, `off`; invalid MCP input returns `isError` |
@@ -462,7 +496,9 @@ surfaces.
 | Cursor | MCP client over Streamable HTTP | None | Standard MCP path documented at `README.md:30-53` |
 | Claude Code/Desktop | MCP client over Streamable HTTP or external bridge | None | Standard MCP path; bridge is outside this repo (`README.md:55-90`) |
 | Other MCP clients | POST JSON-RPC and GET SSE | None | Standard MCP path (`README.md:92-99`) |
-| macOS pasteboard | Writes copied detail/cURL text | OS user session | UI bypass of networking (`Views/PacketDetailView.swift:130-133`) |
+| macOS pasteboard | Writes copied detail/cURL text | OS user session | UI bypass of networking (`Views/PacketDetailView.swift`) |
+| Target HTTP servers (replay) | Outbound `URLSession` requests rebuilt from captured traffic | Captured headers, including cookies/authorization | `Network/ReplayService.swift` |
+| File system (export folder) | Writes request bodies for cURL `@file` references | Sandbox: Downloads entitlement or user-selected bookmark | `Utilities and Extensions/BodyExportStore.swift` |
 | Unified logging | Debug-only `Logger` subsystem `AppTrafficInspectorKit` | OS logging | `DevLogger` has its own locked ring buffer (`Utilities and Extensions/DevLogger.swift:11-50`) |
 
 No analytics, crash reporting, remote telemetry, database, cloud service, payments, push
@@ -472,10 +508,10 @@ notifications, or third-party SDK dependencies were found.
 
 | Surface | Structure/idiom | Count | Boundaries |
 |---|---|---:|---|
-| Unit tests | Swift Testing `@Test` functions in one struct | 19 | Covers redaction, parser bounds, retention, cURL quoting, and media classification without network mocks |
+| Unit tests | Swift Testing `@Test` functions in two suites | 39 | Covers redaction, parser bounds, retention, cURL quoting/body variants, media classification, multipart/form/embedded-media parsing, truncation fields, replay request building, and header diff without network mocks |
 | MCP acceptance | Standalone synchronous Swift script using `URLSession` and semaphores | 14 possible pass increments | Uses the real built app, localhost HTTP server, real JSON-RPC parser/registry, and real singleton state |
 | Shell orchestration | Build/launch/readiness/test/quit procedure | 1 script | Mutates app `UserDefaults`; relies on `xcodebuild`, `defaults`, `osascript`, `open`, `pgrep`, `curl`, and `swift` |
-| UI tests | XCTest screen-object/journey structure | 1 journey | Launches deterministic `-uiTesting` data and checks an image transaction preview; first execution requires macOS Automation permission |
+| UI tests | XCTest screen-object/journey structure | 3 journeys | Launches deterministic `-uiTesting` data and checks an image preview, multipart upload parts plus cURL export, and a replay Compare tab; first execution requires macOS Automation permission. Use `click()` on transaction rows (plain-style `Button`s) |
 
 Unit coverage includes strict/moderate/off privacy behavior, URL/body/JSON redaction, MCP parser
 limits, count/byte retention and selected-item eviction, cURL shell quoting, and image/video/audio/
@@ -544,13 +580,15 @@ This index is both an A–Z symbol index and a “where do I change X?” map.
 | `AppTrafficRequestInfo` / HTTP wire fields | `Models and Data Store/AppTrafficRequestInfo.swift:29-82` |
 | `AppTrafficRootView` / main navigation | `Views/AppTrafficRootView.swift:11-181` |
 | `AppTrafficStore` / SwiftUI state and filters | `Models and Data Store/AppTrafficStore.swift:5-126` |
-| `BodyDisplayResult` | `Views/BodyDisplayResult.swift:11-25` |
-| `BodyViewAsync` / body decode | `Views/BodyViewAsync.swift:11-78` |
+| `BodyDisplayResult` | `Views/BodyDisplayResult.swift` |
+| `BodyExportStore` / export folder | `Utilities and Extensions/BodyExportStore.swift` |
+| `BodyParsing` / multipart, form, sniffing | `Utilities and Extensions/BodyParsing.swift` |
+| `BodyViewAsync` / body decode | `Views/BodyViewAsync.swift` |
 | `BonjourSingleInterfaceRegistrar` | `Network/BonjourSingleInterfaceRegistrar.swift:54-132` |
 | Build targets/configurations | `AppTrafficInspector.xcodeproj/project.pbxproj:261-298,417-665` |
 | Bundle identity | `AppTrafficInspector.xcodeproj/project.pbxproj:609,659` |
 | Clear packets | `AppTrafficMenuCommands.swift:20-23`; `Models and Data Store/AppTrafficStore.swift:44-47` |
-| cURL generation | `Utilities and Extensions/PacketFormatting.swift:14-32` |
+| cURL generation | `Utilities and Extensions/PacketFormatting.swift` |
 | `DevLogger` | `Utilities and Extensions/DevLogger.swift:11-56` |
 | Detail tabs | `Views/PacketDetailView.swift:39-76,179-222` |
 | DNS-SD linker setting | `AppTrafficInspector.xcodeproj/project.pbxproj:608,658` |
@@ -577,12 +615,13 @@ This index is both an A–Z symbol index and a “where do I change X?” map.
 | Packet detail/copy | `Views/PacketDetailView.swift:11-222` |
 | Privacy/redaction rules | `MCP/TrafficRedactor.swift:14-177` |
 | Quick Start/onboarding | `Views/QuickStartView.swift`; `Views/AppTrafficRootView.swift:13-20,52-65` |
-| `RequestMethod` | `Models and Data Store/AppTrafficRequestInfo.swift:9-27` |
+| Replay / compare | `Network/ReplayService.swift`; `Views/ReplayComparisonView.swift` |
+| `RequestMethod` | `Models and Data Store/AppTrafficRequestInfo.swift` |
 | SSE notifications | `MCP/TrafficEventBus.swift:10-96`; `MCP/MCPServer.swift:259-296` |
 | Settings UI | `Views/SettingsView.swift:8-72` |
 | SwiftLint policy | `.swiftlint.yml` |
 | `TrafficEventBus` / in-process event delivery | `MCP/TrafficEventBus.swift:65-96` |
-| Unit tests | `AppTrafficInspectorTests/TrafficRedactorTests.swift` |
+| Unit tests | `AppTrafficInspectorTests/TrafficRedactorTests.swift`; `AppTrafficInspectorTests/BodyInspectionTests.swift` |
 
 ## 14. Quality Gates & Hotspots
 
@@ -615,8 +654,8 @@ find . -type f -name '*.swift' \
 | Gate | State |
 |---|---|
 | Compiler | Swift 6.0; Debug testability; warning suite enabled in Xcode project |
-| Unit tests | 19 Swift Testing cases |
-| UI tests | One deterministic screen-object journey; host Automation approval required |
+| Unit tests | 39 Swift Testing cases |
+| UI tests | Three deterministic screen-object journeys; signing and host Automation approval required |
 | Acceptance | Real Debug app and MCP endpoint; 14 possible checks |
 | Lint | SwiftLint config exists, but no repo script or CI enforcement |
 | CI | None |
@@ -628,7 +667,7 @@ find . -type f -name '*.swift' \
 |---:|---|---|
 | 1 | Authenticate or cryptographically validate producer frames; document the trust model | Traffic ingest accepts unauthenticated plaintext LAN input (`Network/AppTrafficPublisher.swift`) |
 | 2 | Replace notification mirroring with one observable source of truth | Canonical state and published snapshots can diverge (`Models and Data Store/AppTrafficStore.swift`) |
-| 3 | Add tests around producer framing, filters, JSON-RPC error combinations, SSE, and concurrency | The new 19-test suite covers the quick-win boundaries but not these integrations |
+| 3 | Add tests around producer framing, filters, JSON-RPC error combinations, SSE, and concurrency | The 39-test suite covers the quick-win boundaries but not these integrations |
 | 4 | Split `MCPServer` into transport, routing, and subscription components | One 339-line type owns multiple protocol and lifecycle responsibilities |
 | 5 | Remove excluded duplicate/dead source | Duplicate `AppTrafficProject` and unused `ColoredButton` increase editing risk |
 | 6 | Make SwiftLint paths match the actual source layout and enforce it | Current `included` app path does not exist (`.swiftlint.yml`) |
@@ -666,9 +705,9 @@ formatting off the main actor, but the MCP search and serialization work are wra
 
 | Field | Value |
 |---|---|
-| Atlas version | 1.2 |
-| Source commit | Not available: the source folder is not a Git repository |
-| Derived date | 2026-09-18 |
+| Atlas version | 1.3 |
+| Source commit | `2f05199` plus the media/cURL/replay changes |
+| Derived date | 2026-10-15 |
 | Expected atlas path | `CODE_ATLAS.md` |
 
 If this folder becomes a Git checkout, replace the source-revision marker with:
@@ -722,6 +761,7 @@ git rev-parse HEAD
 
 | Atlas version | Date | Change |
 |---|---|---|
+| 1.3 | 2026-10-15 | Added media/multipart/form/binary body views, binary-safe cURL with body export folder, Replay with Compare tab, open `RequestMethod`, Kit truncation fields, file entitlements; refreshed metrics; corrected header version and Git status |
 | 1.2 | 2026-09-18 | Aligned Glass UI with Apple HIG: removed nested glass panels and decorative gradient, restored native sidebar vibrancy, standardized search and segmented picker controls |
 | 1.1 | 2026-09-17 | Added Glass UI, media previews, bounded retention, hardened MCP, UI-test target, and refreshed metrics |
 | 1.0 | 2026-09-17 | Initial evidence-derived atlas for the non-Git folder snapshot |

@@ -21,4 +21,19 @@ final class MediaTransactionJourneyTests: XCTestCase {
         browser.openSeededImageTransaction()
         browser.assertImagePreviewIsVisible()
     }
+
+    func testInspectMultipartUploadAndCopyCurl() {
+        let browser = TrafficBrowserScreen(app: app)
+        browser.openSeededUploadTransaction()
+        browser.assertMultipartUploadIsVisible()
+        browser.copyCurl()
+        browser.assertCurlCopiedWithExportedFile()
+    }
+
+    func testReplayOpensComparison() {
+        let browser = TrafficBrowserScreen(app: app)
+        browser.openSeededReplayTransaction()
+        browser.assertReplayComparisonIsVisible()
+    }
+
 }

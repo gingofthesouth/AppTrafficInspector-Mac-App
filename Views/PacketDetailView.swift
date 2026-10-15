@@ -11,6 +11,12 @@ import AppKit
 struct PacketDetailView: View {
     let packet: AppTrafficPacket?
     @State private var selected: DetailTab = .overview
+    @State private var isReplaying = false
+    @State private var confirmingReplay = false
+    @State private var copiedNotice: String?
+
+    /// Unsafe-method replays are confirmed once per app launch.
+    @MainActor private static var unsafeReplayConfirmed = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -18,18 +24,57 @@ struct PacketDetailView: View {
                 // Header metrics (status, method, url, timing, sizes)
                 header(info: info)
                     .padding(.bottom, 2)
+                if let packet, packet.isReplay {
+                    replayBanner(packet)
+                }
                 segmentedBar()
 
                 contentView(for: info, tab: selected, packet: packet)
 
                 HStack(spacing: 8) {
+                    if let copiedNotice {
+                        Text(copiedNotice)
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                            .accessibilityIdentifier("copied-notice")
+                    }
                     Spacer()
                     Button("Copy") { copyToClipboard(detailText(for: info, tab: selected, pretty: true)) }
                         .buttonStyle(.bordered)
-                    if selected == .overview {
-                        Button("cURL") { copyToClipboard(PacketFormatting.curlString(for: info)) }
-                            .buttonStyle(.bordered)
+                    Button("cURL") { copyCurl(for: info) }
+                        .buttonStyle(.bordered)
+                        .help("Copy a cURL command. Binary bodies are written to the export folder set in Settings.")
+                        .accessibilityIdentifier("copy-curl-button")
+                    Button {
+                        requestReplay()
+                    } label: {
+                        if isReplaying {
+                            ProgressView().controlSize(.small)
+                        } else {
+                            Label("Replay", systemImage: "arrow.clockwise")
+                        }
                     }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(isReplaying || info.url == nil)
+                    .keyboardShortcut("r", modifiers: .command)
+                    .help("Resend this request from this Mac (⌘R)")
+                    .accessibilityIdentifier("replay-button")
+                }
+                .confirmationDialog(
+                    "Replay \(info.requestMethod?.rawValue ?? "") request?",
+                    isPresented: $confirmingReplay
+                ) {
+                    Button("Replay") {
+                        if replaySource?.requestInfo?.requestMethod?.isUnsafe == true {
+                            Self.unsafeReplayConfirmed = true
+                        }
+                        performReplay()
+                    }
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text(replayConfirmationMessage)
                 }
             } else {
                 ContentUnavailableView(
@@ -41,12 +86,106 @@ struct PacketDetailView: View {
         }
         .padding(12)
         .task(id: packet?.packetId) {
-            if let info = packet?.requestInfo,
-               isMediaContentType(contentType(in: info.responseHeaders)) {
-                selected = .responseBody
-            } else {
-                selected = .overview
+            copiedNotice = nil
+            selected = initialTab(for: packet)
+        }
+    }
+
+    private func initialTab(for packet: AppTrafficPacket?) -> DetailTab {
+        guard let packet, let info = packet.requestInfo else { return .overview }
+        if packet.isReplay { return .compare }
+        if isMediaContentType(contentType(in: info.responseHeaders)) { return .responseBody }
+        let requestType = contentType(in: info.requestHeaders)
+        if isMediaContentType(requestType) || HTTPHeaders.mimeType(requestType) == "multipart/form-data" {
+            return .requestBody
+        }
+        return .overview
+    }
+
+    // MARK: - Replay
+
+    /// Replaying a replay re-sends the original request.
+    private var replaySource: AppTrafficPacket? {
+        guard let packet else { return nil }
+        return packet.replayOfPacketId.flatMap { AppTrafficController.shared.packet(withId: $0) } ?? packet
+    }
+
+    private var replayNeedsUnsafeConfirmation: Bool {
+        replaySource?.requestInfo?.requestMethod?.isUnsafe == true && !Self.unsafeReplayConfirmed
+    }
+
+    private var replayBodyTruncated: Bool {
+        replaySource?.requestInfo?.requestBodyTruncated == true
+    }
+
+    private var replayConfirmationMessage: String {
+        var lines: [String] = []
+        if replayBodyTruncated {
+            lines.append("The captured request body was truncated by AppTrafficInspectorKit, so the replay sends an incomplete body.")
+        }
+        if replayNeedsUnsafeConfirmation {
+            lines.append("This method can change data on the server. The request is sent again from this Mac with the captured headers, including cookies and authorization. You won't be asked about the method again until the app restarts.")
+        }
+        return lines.joined(separator: "\n\n")
+    }
+
+    private func requestReplay() {
+        if replayNeedsUnsafeConfirmation || replayBodyTruncated {
+            confirmingReplay = true
+        } else {
+            performReplay()
+        }
+    }
+
+    private func performReplay() {
+        guard let source = replaySource, !isReplaying else { return }
+        isReplaying = true
+        Task {
+            await ReplayService.shared.replay(source)
+            isReplaying = false
+        }
+    }
+
+    @ViewBuilder
+    private func replayBanner(_ packet: AppTrafficPacket) -> some View {
+        HStack(spacing: 8) {
+            Label("Replay", systemImage: "arrow.clockwise.circle.fill")
+                .foregroundStyle(.tint)
+            if let error = packet.replayError {
+                Text("Failed: \(error)")
+                    .foregroundStyle(.red)
+                    .textSelection(.enabled)
+                    .accessibilityIdentifier("replay-error")
             }
+            Spacer()
+            if let originalId = packet.replayOfPacketId,
+               let original = AppTrafficController.shared.packet(withId: originalId) {
+                Button("Show Original") { AppTrafficController.shared.reveal(original) }
+                    .buttonStyle(.link)
+            } else {
+                Text("Original no longer in history").foregroundStyle(.secondary)
+            }
+        }
+        .font(.callout)
+        .accessibilityIdentifier("replay-banner")
+    }
+
+    // MARK: - cURL
+
+    private func copyCurl(for info: AppTrafficRequestInfo) {
+        let transactionId = packet?.packetId ?? UUID().uuidString
+        var exported: [URL] = []
+        let curl = PacketFormatting.curlString(for: info) { data, filename in
+            let url = try BodyExportStore.shared.write(data, filename: filename, transactionId: transactionId)
+            exported.append(url)
+            return url
+        }
+        copyToClipboard(curl)
+        if let first = exported.first {
+            let folder = first.deletingLastPathComponent().path
+            copiedNotice = "cURL copied • \(exported.count) body file\(exported.count == 1 ? "" : "s") in \(folder)"
+        } else {
+            copiedNotice = "cURL copied"
         }
     }
     
@@ -65,6 +204,10 @@ struct PacketDetailView: View {
                 .tag(DetailTab.responseHeaders)
             Label("Resp Body", systemImage: "tray.and.arrow.down")
                 .tag(DetailTab.responseBody)
+            if packet?.isReplay == true {
+                Label("Compare", systemImage: "arrow.left.arrow.right")
+                    .tag(DetailTab.compare)
+            }
         }
         .pickerStyle(.segmented)
         .labelsHidden()
@@ -83,11 +226,15 @@ struct PacketDetailView: View {
             }
             return ""
         case .requestBody:
-            return PacketFormatting.dataString(fromBase64: info.requestBody, pretty: true)
+            return PacketFormatting.bodyText(fromBase64: info.requestBody, contentType: contentType(in: info.requestHeaders))
         case .responseHeaders:
             return keyValuesString(info.responseHeaders)
         case .responseBody:
-            return PacketFormatting.dataString(fromBase64: info.responseData, pretty: true)
+            return PacketFormatting.bodyText(fromBase64: info.responseData, contentType: contentType(in: info.responseHeaders))
+        case .compare:
+            guard let packet else { return "" }
+            let original = packet.replayOfPacketId.flatMap { AppTrafficController.shared.packet(withId: $0) }
+            return ReplayComparison(original: original, replay: packet).summaryText
         }
     }
 
@@ -101,9 +248,9 @@ struct PacketDetailView: View {
         }
         let reqHeaders = keyValuesString(info.requestHeaders)
         if !reqHeaders.isEmpty { s += "Request Headers:\n" + reqHeaders + "\n\n" }
-        let reqBody = PacketFormatting.dataString(fromBase64: info.requestBody, pretty: true)
+        let reqBody = PacketFormatting.bodyText(fromBase64: info.requestBody, contentType: contentType(in: info.requestHeaders))
         if !reqBody.isEmpty { s += "Request Body:\n" + reqBody + "\n\n" }
-        let respBody = PacketFormatting.dataString(fromBase64: info.responseData, pretty: true)
+        let respBody = PacketFormatting.bodyText(fromBase64: info.responseData, contentType: contentType(in: info.responseHeaders))
         if !respBody.isEmpty { s += "Response Body:\n" + respBody }
         return s
     }
@@ -182,21 +329,44 @@ extension PacketDetailView {
                 ScrollView { textMono(queryItemsString(url: url)) }
             } else { EmptyBodyView() }
         case .requestBody:
-            bodyView(base64: info.requestBody, contentType: contentType(in: info.requestHeaders))
+            bodyView(
+                base64: info.requestBody,
+                headers: info.requestHeaders,
+                role: .request,
+                truncatedFrom: info.requestBodyTruncated == true ? (info.requestBodyOriginalByteCount ?? 0) : nil
+            )
         case .responseHeaders:
             ScrollView { textMono(keyValuesString(info.responseHeaders)) }
         case .responseBody:
-            bodyView(base64: info.responseData, contentType: contentType(in: info.responseHeaders))
+            bodyView(
+                base64: info.responseData,
+                headers: info.responseHeaders,
+                role: .response,
+                truncatedFrom: info.responseDataTruncated == true ? (info.responseDataOriginalByteCount ?? 0) : nil
+            )
+        case .compare:
+            if let packet {
+                ReplayComparisonView(
+                    original: packet.replayOfPacketId.flatMap { AppTrafficController.shared.packet(withId: $0) },
+                    replay: packet
+                )
+            }
         }
     }
 
     @ViewBuilder
-    private func bodyView(base64: String?, contentType: String?) -> some View {
-        BodyViewAsync(base64: base64, contentType: contentType)
+    private func bodyView(base64: String?, headers: [String: String]?, role: BodyRole, truncatedFrom: Int?) -> some View {
+        BodyViewAsync(
+            base64: base64,
+            contentType: contentType(in: headers),
+            declaredLength: HTTPHeaders.value("Content-Length", in: headers).flatMap { Int($0.trimmingCharacters(in: .whitespaces)) },
+            role: role,
+            producerTruncatedFrom: truncatedFrom
+        )
     }
 
     private func contentType(in headers: [String: String]?) -> String? {
-        headers?.first { $0.key.caseInsensitiveCompare("Content-Type") == .orderedSame }?.value
+        HTTPHeaders.value("Content-Type", in: headers)
     }
 
     private func isMediaContentType(_ contentType: String?) -> Bool {
@@ -222,5 +392,6 @@ private enum DetailTab: String, CaseIterable, Identifiable {
     case requestBody = "Body"
     case responseHeaders = "Resp Headers"
     case responseBody = "Resp Body"
+    case compare = "Compare"
     var id: String { rawValue }
 }

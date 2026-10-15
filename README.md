@@ -6,7 +6,9 @@ App Traffic Inspector is a native macOS network debugging tool for iOS developme
 - Real-time network traffic monitoring from iOS apps
 - Request/response inspection with syntax highlighting
 - JSON formatting and visualization
-- Native image previews and video/audio playback
+- Media previews for what is sent and received: images, video/audio, PDF, multipart uploads (per-part previews), URL-encoded forms, base64 media embedded in JSON, and a hex view for other binary bodies
+- Binary-safe cURL export that includes the request body (bodies that are not text are written to files and referenced with `@file`)
+- One-click Replay of any captured request with a side-by-side comparison against the original
 - Native macOS 26 Liquid Glass interface
 - Device and project separation
 - Bounded per-device retention: 1,000 transactions and 250 MiB of decoded request/response bodies
@@ -22,6 +24,35 @@ App Traffic Inspector is a native macOS network debugging tool for iOS developme
 
 ## Usage
 Run an iOS app using the AppTrafficKit framework (coming soon) on the same network as your Mac running App Traffic Inspector. Network requests will automatically appear in the inspector.
+
+### Inspect uploads and downloads
+Select a transaction to open its details. Media requests (multipart, image, video, audio) are marked with a paperclip in the list and open on **Req Body**; media responses open on **Resp Body**.
+
+- **Multipart uploads** list each part. Text parts are shown inline, media parts are previewed, and any part can be saved.
+- **Form bodies** (`application/x-www-form-urlencoded`) are shown as a field table.
+- **JSON with embedded base64 media** shows previews above the formatted JSON.
+- **Other binary bodies** are shown as a hex dump with a Save button.
+- If the iOS framework truncated a body before sending it, or a body is smaller than its `Content-Length`, the body tab shows a notice. Previews of truncated bodies are incomplete, cURL output starts with a `# Warning` line, and Replay asks for confirmation before sending the incomplete body.
+
+### Copy as cURL
+**cURL** in the detail bar copies a command that includes the method, headers (including `Cookie`), and body:
+
+- Text bodies are inlined with `--data-raw`.
+- Multipart bodies are rebuilt with `-F`/`--form-string`, and `Content-Type`/`Content-Length` are left for curl to set.
+- Binary bodies and file parts are written to `<export folder>/transaction-<id>/` and referenced with `--data-binary @file` or `-F name=@file`.
+
+The export folder defaults to `~/Downloads/AppTrafficInspector`. Change it, reveal it, or clear exported files under **Settings → Body Export**. MCP `get_packet_curl` output stays text-only and adds a note when a binary body is omitted.
+
+### Replay
+**Replay** (⌘R) sends the captured request again from this Mac and adds the result as a new transaction marked **Replay**, which opens on a **Compare** tab showing status, duration, size, header differences, and both response bodies side by side.
+
+- The request is sent with its captured headers, including `Cookie` and `Authorization`. Cookies are not stored, nothing is cached, and redirects are not followed.
+- Methods other than GET, HEAD, OPTIONS, and TRACE ask for confirmation once per launch, because they can change server data.
+- Replaying a replay sends the original request again.
+- Only `http` and `https` URLs can be replayed.
+
+### iOS framework compatibility
+AppTrafficInspectorKit caps each captured body (8 MiB by default) and marks truncated bodies, which this app reports. Requests made with background `URLSession`s are not captured.
 
 ---
 
@@ -113,7 +144,7 @@ xcodebuild -project AppTrafficInspector.xcodeproj \
   -scheme AppTrafficInspector \
   -destination 'platform=macOS' build
 
-# Run the 19 unit tests without requiring a local development certificate
+# Run the 39 unit tests without requiring a local development certificate
 xcodebuild -project AppTrafficInspector.xcodeproj \
   -scheme AppTrafficInspector \
   -destination 'platform=macOS' \
@@ -123,10 +154,10 @@ xcodebuild -project AppTrafficInspector.xcodeproj \
 # Build, launch, and run the 14 MCP acceptance checks
 ./Scripts/run_acceptance_tests.sh
 
-# Run the deterministic image-transaction UI journey
+# Run the deterministic media, multipart cURL, and replay UI journeys (requires signing)
 xcodebuild -project AppTrafficInspector.xcodeproj \
   -scheme AppTrafficInspector \
-  -destination 'platform=macOS' \
+  -destination 'platform=macOS,arch=arm64' \
   -only-testing:AppTrafficInspectorUITests/MediaTransactionJourneyTests test
 ```
 

@@ -56,6 +56,12 @@ final class AppTrafficController: NSObject, AppTrafficPublisherDelegate {
     }
 
     func didGetPacket(publisher: AppTrafficPublisher, packet: AppTrafficPacket) {
+        ingest(packet)
+    }
+
+    /// Adds or updates a packet and fans out notifications and MCP events. Used for both
+    /// network-received packets and locally created replay transactions.
+    func ingest(_ packet: AppTrafficPacket) {
         let result = self.addPacket(newPacket: packet)
         let params = packetEventParams(packet)
 
@@ -99,6 +105,29 @@ final class AppTrafficController: NSObject, AppTrafficPublisherDelegate {
     }
     
     
+    func packet(withId packetId: String) -> AppTrafficPacket? {
+        for project in projects {
+            for device in project.devices {
+                if let match = device.packets.first(where: { $0.packetId == packetId }) {
+                    return match
+                }
+            }
+        }
+        return nil
+    }
+
+    /// Makes the packet's project and device current and selects the packet.
+    func reveal(_ packet: AppTrafficPacket) {
+        for project in projects {
+            for device in project.devices where device.packets.contains(packet) {
+                if selectedProject !== project { selectedProject = project }
+                if project.selectedDevice !== device { project.selectedDevice = device }
+                device.select(packet: packet)
+                return
+            }
+        }
+    }
+
     func checkInitialSelection() {
         if self.selectedProject?.selectedDevice?.packets.count == 1 {
             self.selectedProject?.selectedDevice?.notifyPacketSelection()

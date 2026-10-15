@@ -139,7 +139,7 @@ struct TrafficRedactorTests {
 
         #expect(curl.contains(#"'https://example.com/search?q=it'\''s'"#))
         #expect(curl.contains(#"-H 'X-Name: O'\''Brien'"#))
-        #expect(curl.contains(#"-d 'customer'\''s data'"#))
+        #expect(curl.contains(#"--data-raw 'customer'\''s data'"#))
     }
 
     @Test("MCP search and cURL exports redact sensitive values")

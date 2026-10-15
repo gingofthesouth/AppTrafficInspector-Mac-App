@@ -161,33 +161,48 @@ struct AppTrafficRootView: View {
 
     private var transactionsList: some View {
         List(store.packets, id: \.self) { transaction in
-            HStack(spacing: 12) {
-                Image(systemName: mediaSystemImage(for: transaction))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 18)
-                Text(transaction.requestInfo?.statusCode ?? "")
-                    .foregroundStyle(statusColor(for: transaction))
-                    .frame(width: 42, alignment: .leading)
-                MethodBadge(method: transaction.requestInfo?.requestMethod)
-                    .frame(width: 58, alignment: .leading)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(transaction.requestInfo?.url ?? "")
-                        .lineLimit(1)
-                    if let contentType = contentType(for: transaction) {
-                        Text(contentType)
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
+            Button {
+                store.select(packet: transaction)
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: mediaSystemImage(for: transaction))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 18)
+                    Text(transaction.requestInfo?.statusCode ?? "")
+                        .foregroundStyle(statusColor(for: transaction))
+                        .frame(width: 42, alignment: .leading)
+                    MethodBadge(method: transaction.requestInfo?.requestMethod)
+                        .frame(width: 58, alignment: .leading)
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 6) {
+                            if transaction.isReplay {
+                                Text("Replay")
+                                    .font(.caption2.weight(.semibold))
+                                    .padding(.horizontal, 5)
+                                    .padding(.vertical, 1)
+                                    .background(Color.accentColor.opacity(0.18), in: Capsule())
+                                    .foregroundStyle(transaction.replayError == nil ? Color.accentColor : .red)
+                                    .accessibilityIdentifier("replay-badge")
+                            }
+                            Text(transaction.requestInfo?.url ?? "")
+                                .lineLimit(1)
+                        }
+                        if let contentType = contentType(for: transaction) {
+                            Text(contentType)
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                        }
                     }
+                    Spacer()
+                    Text(transaction.requestInfo?.startDate?.readable ?? "")
+                        .foregroundStyle(.secondary)
+                        .frame(width: 150, alignment: .trailing)
                 }
-                Spacer()
-                Text(transaction.requestInfo?.startDate?.readable ?? "")
-                    .foregroundStyle(.secondary)
-                    .frame(width: 150, alignment: .trailing)
+                .padding(.vertical, 4)
+                .contentShape(Rectangle())
             }
-            .padding(.vertical, 4)
-            .contentShape(Rectangle())
+            .buttonStyle(.plain)
             .accessibilityIdentifier("transaction-row-\(transaction.packetId ?? "unknown")")
-            .onTapGesture { store.select(packet: transaction) }
             .listRowBackground(
                 store.selectedPacket === transaction
                     ? Color.accentColor.opacity(0.14)
@@ -239,6 +254,13 @@ struct AppTrafficRootView: View {
         if type.hasPrefix("image/") { return "photo" }
         if type.hasPrefix("video/") { return "film" }
         if type.hasPrefix("audio/") { return "waveform" }
+        let requestType = transaction.requestInfo?.requestHeaders?
+            .first { $0.key.caseInsensitiveCompare("Content-Type") == .orderedSame }?
+            .value.lowercased() ?? ""
+        if requestType.hasPrefix("multipart/") || requestType.hasPrefix("image/")
+            || requestType.hasPrefix("video/") || requestType.hasPrefix("audio/") {
+            return "paperclip"
+        }
         return "doc.text"
     }
 }
