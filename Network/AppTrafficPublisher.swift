@@ -7,6 +7,23 @@ import Cocoa
 import Network
 
 @MainActor
+final class TrafficListenerStatus: ObservableObject {
+    static let shared = TrafficListenerStatus()
+
+    @Published private(set) var summary = "Starting"
+    @Published private(set) var detail = "Finding a network interface"
+    @Published private(set) var isReady = false
+
+    private init() {}
+
+    func update(summary: String, detail: String, isReady: Bool) {
+        self.summary = summary
+        self.detail = detail
+        self.isReady = isReady
+    }
+}
+
+@MainActor
 protocol AppTrafficPublisherDelegate: AnyObject {
     func didGetPacket(publisher: AppTrafficPublisher, packet: AppTrafficPacket)
 }
@@ -34,6 +51,7 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
             listener.cancel()
             self.listener = nil
         }
+
         self.connections = []
 
         let start: @Sendable () -> Void = { [weak self] in self?.startPublishingImpl() }
@@ -44,10 +62,33 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
         }
     }
 
+    func stopPublishing() {
+        bonjourRegistrar?.stop()
+        bonjourRegistrar = nil
+        listener?.cancel()
+        listener = nil
+        connections.forEach { $0.cancel() }
+        connections.removeAll()
+        Task { @MainActor in
+            TrafficListenerStatus.shared.update(
+                summary: "Stopped",
+                detail: "Traffic capture is not listening.",
+                isReady: false
+            )
+        }
+    }
+
     private func startPublishingImpl() {
         // Get the preferred network interface (ethernet > WiFi)
         guard let preferredInterface = NetworkInterfaceDetector.getPreferredInterface() else {
             print("No suitable network interface found")
+            Task { @MainActor in
+                TrafficListenerStatus.shared.update(
+                    summary: "Waiting for network",
+                    detail: "No active Ethernet or Wi-Fi interface was found.",
+                    isReady: false
+                )
+            }
             self.restartAfterDelay()
             return
         }
@@ -88,11 +129,32 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
                     ) {
                         self?.bonjourRegistrar = registrar
                     }
+                    Task { @MainActor in
+                        TrafficListenerStatus.shared.update(
+                            summary: "Listening",
+                            detail: "\(preferredInterface.name) • port \(AppTrafficConfiguration.portString)",
+                            isReady: true
+                        )
+                    }
                 case .failed(let error):
                     print("Network listener failed: \(error)")
+                    Task { @MainActor in
+                        TrafficListenerStatus.shared.update(
+                            summary: "Capture unavailable",
+                            detail: error.localizedDescription,
+                            isReady: false
+                        )
+                    }
                     self?.restartAfterDelay()
                 case .cancelled:
                     print("Network listener cancelled")
+                    Task { @MainActor in
+                        TrafficListenerStatus.shared.update(
+                            summary: "Stopped",
+                            detail: "Traffic capture is not listening.",
+                            isReady: false
+                        )
+                    }
                 default:
                     break
                 }
@@ -138,8 +200,8 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
         connection.start(queue: .global(qos: .background))
     }
     
-    /// Max JSON body size (bytes) to avoid corrupt length prefix or framework issues.
-    private static let maxBodyLength = 2 * 1024 * 1024
+    /// Max JSON transaction size (bytes) to avoid corrupt length prefixes or unbounded allocations.
+    private static let maxBodyLength = AppTrafficConfiguration.maximumTransactionBytes
 
     private func readNextFrame(on connection: NWConnection) {
         // Read 8-byte length prefix. Try big-endian first (wire contract), fall back to little-endian.
@@ -166,7 +228,8 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
             } else if little <= Self.maxBodyLength {
                 u64 = little
             } else {
-                print("Failed to read body: length big=\(big) little=\(little) both exceed max \(Self.maxBodyLength)")
+                let ascii = String(decoding: header, as: UTF8.self)
+                print("Failed to read body: length big=\(big) little=\(little) both exceed max \(Self.maxBodyLength); header bytes as text=\(ascii.debugDescription) (printable text means the stream is desynchronized after a short length prefix)")
                 connection.cancel()
                 return
             }
@@ -222,7 +285,9 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
             }
             
         } catch {
-            print(error)
+            let tail = String(decoding: data.suffix(40), as: UTF8.self)
+            let closed = data.last == UInt8(ascii: "}")
+            print("Packet decode failed: declared/received \(data.count) bytes, ends with \(closed ? "'}'" : "non-'}' (frame likely truncated: sender length prefix shorter than payload)"), tail=\(tail.debugDescription), error=\(error)")
         }
     }
 }

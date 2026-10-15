@@ -1,10 +1,3 @@
-//
-//  AppTrafficRootView.swift
-//  App Traffic Inspector
-//
-//  Created by Ernest Cunningham on 15/10/2025.
-//
-
 import SwiftUI
 import AppKit
 
@@ -16,36 +9,37 @@ struct AppTrafficRootView: View {
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
 
     private var shouldShowQuickStartOnLaunch: Bool {
-        !hasSeenQuickStart || savedQuickStartGuideVersion < QuickStartContent.currentGuideVersion
+        #if DEBUG
+        if UITestConfiguration.isUITesting { return false }
+        #endif
+        return !hasSeenQuickStart || savedQuickStartGuideVersion < QuickStartContent.currentGuideVersion
     }
+
     private var isFilterActive: Bool {
         let status = store.statusFilterTerm.trimmingCharacters(in: .whitespacesAndNewlines)
         return !store.addressFilterTerm.isEmpty || !store.methodFilterTerm.isEmpty || !status.isEmpty
     }
 
-    private func clearAllFilters() {
-        store.addressFilterTerm = ""
-        store.methodFilterTerm = ""
-        store.statusFilterTerm = ""
-    }
-
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             projectsColumn
-                .navigationTitle("Projects")
-                .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 260)
+                .navigationSplitViewColumnWidth(min: 190, ideal: 230, max: 280)
         } content: {
             devicesColumn
-                .navigationTitle("Devices")
-                .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 320)
+                .navigationSplitViewColumnWidth(min: 220, ideal: 270, max: 330)
         } detail: {
             if store.projects.isEmpty || store.devices.isEmpty || (store.packets.isEmpty && !isFilterActive) {
                 EmptyStateView()
             } else {
-                packetsAndDetail
+                transactionsAndDetail
             }
         }
         .navigationSplitViewStyle(.balanced)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                CaptureStatusPill()
+            }
+        }
         .onAppear {
             columnVisibility = .all
             if shouldShowQuickStartOnLaunch {
@@ -64,118 +58,187 @@ struct AppTrafficRootView: View {
     }
 
     private var projectsColumn: some View {
-        List(store.projects, id: \.self) { project in
-            HStack {
-                Text(project.projectName ?? "Unnamed")
-                Spacer()
+        VStack(alignment: .leading, spacing: 6) {
+            columnHeader("Projects", count: store.projects.count, systemImage: "square.stack.3d.up")
+                .padding(.top, 8)
+            List(store.projects, id: \.self) { project in
+                HStack {
+                    Image(systemName: "shippingbox")
+                        .foregroundStyle(.secondary)
+                    Text(project.projectName ?? "Unnamed")
+                    Spacer()
+                }
+                .padding(.vertical, 4)
+                .contentShape(Rectangle())
+                .accessibilityIdentifier("project-row-\(project.projectName ?? "unnamed")")
+                .onTapGesture { store.select(project: project) }
+                .listRowBackground(
+                    project === store.selectedProject
+                        ? Color.accentColor.opacity(0.18)
+                        : Color.clear
+                )
             }
-            .contentShape(Rectangle())
-            .onTapGesture { store.select(project: project) }
-            .listRowBackground(project === store.selectedProject ? Color.accentColor.opacity(0.15) : Color.clear)
+            .accessibilityIdentifier("projects-list")
+            .listStyle(.sidebar)
         }
-        .listStyle(.sidebar)
-        .scrollContentBackground(.hidden)
-        .background(.ultraThinMaterial)
     }
 
     private var devicesColumn: some View {
-        List(store.devices, id: \.self) { device in
-            VStack(alignment: .leading, spacing: 2) {
-                Text(device.deviceName ?? "Device")
-                if let desc = device.deviceDescription, !desc.isEmpty {
-                    Text(desc).foregroundStyle(.secondary).font(.footnote)
+        VStack(alignment: .leading, spacing: 6) {
+            columnHeader("Devices", count: store.devices.count, systemImage: "iphone")
+                .padding(.top, 8)
+            List(store.devices, id: \.self) { device in
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(device.deviceName ?? "Device")
+                        .fontWeight(.medium)
+                    if let description = device.deviceDescription, !description.isEmpty {
+                        Text(description)
+                            .foregroundStyle(.secondary)
+                            .font(.footnote)
+                    }
                 }
+                .padding(.vertical, 4)
+                .contentShape(Rectangle())
+                .accessibilityIdentifier("device-row-\(device.deviceId ?? "unknown")")
+                .onTapGesture { store.select(device: device) }
+                .listRowBackground(
+                    device === store.selectedDevice
+                        ? Color.accentColor.opacity(0.18)
+                        : Color.clear
+                )
             }
-            .contentShape(Rectangle())
-            .onTapGesture { store.select(device: device) }
-            .listRowBackground(device === store.selectedDevice ? Color.accentColor.opacity(0.15) : Color.clear)
+            .accessibilityIdentifier("devices-list")
+            .listStyle(.sidebar)
         }
-        .listStyle(.sidebar)
-        .scrollContentBackground(.hidden)
-        .background(.ultraThinMaterial)
     }
 
-    private var packetsAndDetail: some View {
+    private var transactionsAndDetail: some View {
         VSplitView {
-            VStack(spacing: 8) {
-                packetsHeader(clearFilters: clearAllFilters, isFilterActive: isFilterActive)
+            VStack(spacing: 0) {
+                transactionsHeader
+                Divider()
                 if store.packets.isEmpty && isFilterActive {
                     FilterEmptyView(clearAction: clearAllFilters)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    packetsList
+                    transactionsList
                 }
             }
-            .padding(8)
+            .frame(minHeight: 180)
+
             PacketDetailView(packet: store.selectedPacket)
-                .padding(8)
+                .frame(minHeight: 200)
         }
-        .background(.thinMaterial)
     }
 
-    private func packetsHeader(clearFilters: @escaping () -> Void, isFilterActive: Bool) -> some View {
+    private var transactionsHeader: some View {
         HStack(spacing: 8) {
+            Label("\(store.packets.count) Transactions", systemImage: "network")
+                .font(.headline)
             TextField("Filter address", text: $store.addressFilterTerm)
                 .textFieldStyle(.roundedBorder)
+                .accessibilityIdentifier("transaction-address-filter")
             TextField("Status", text: $store.statusFilterTerm)
                 .textFieldStyle(.roundedBorder)
-                .frame(maxWidth: 120)
+                .frame(maxWidth: 75)
             TextField("Method", text: $store.methodFilterTerm)
                 .textFieldStyle(.roundedBorder)
-                .frame(maxWidth: 140)
-            Spacer()
-            Button {
+                .frame(maxWidth: 85)
+            Button("Clear Transactions", systemImage: "trash") {
                 store.clearPackets()
-            } label: {
-                Image(systemName: "trash")
             }
+            .labelStyle(.iconOnly)
             .buttonStyle(.bordered)
+            .accessibilityIdentifier("clear-transactions-button")
             if isFilterActive {
-                Button("Clear filters", action: clearFilters)
+                Button("Clear Filters", action: clearAllFilters)
+                    .buttonStyle(.bordered)
             }
         }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
     }
 
-    private var packetsList: some View {
-        List(store.packets, id: \.self) { packet in
+    private var transactionsList: some View {
+        List(store.packets, id: \.self) { transaction in
             HStack(spacing: 12) {
-                Text(packet.requestInfo?.statusCode ?? "")
-                    .foregroundStyle(statusColor(for: packet))
-                    .frame(width: 50, alignment: .leading)
-                Text(packet.requestInfo?.requestMethod?.rawValue ?? "")
-                    .foregroundStyle(methodColor(for: packet))
-                    .frame(width: 55, alignment: .leading)
-                Text(packet.requestInfo?.url ?? "")
-                    .lineLimit(1)
+                Image(systemName: mediaSystemImage(for: transaction))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 18)
+                Text(transaction.requestInfo?.statusCode ?? "")
+                    .foregroundStyle(statusColor(for: transaction))
+                    .frame(width: 42, alignment: .leading)
+                MethodBadge(method: transaction.requestInfo?.requestMethod)
+                    .frame(width: 58, alignment: .leading)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(transaction.requestInfo?.url ?? "")
+                        .lineLimit(1)
+                    if let contentType = contentType(for: transaction) {
+                        Text(contentType)
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    }
+                }
                 Spacer()
-                Text(packet.requestInfo?.startDate?.readable ?? "")
+                Text(transaction.requestInfo?.startDate?.readable ?? "")
                     .foregroundStyle(.secondary)
                     .frame(width: 150, alignment: .trailing)
             }
+            .padding(.vertical, 4)
             .contentShape(Rectangle())
-            .onTapGesture { store.select(packet: packet) }
-            .listRowBackground((store.selectedPacket === packet) ? Color.accentColor.opacity(0.1) : Color.clear)
+            .accessibilityIdentifier("transaction-row-\(transaction.packetId ?? "unknown")")
+            .onTapGesture { store.select(packet: transaction) }
+            .listRowBackground(
+                store.selectedPacket === transaction
+                    ? Color.accentColor.opacity(0.14)
+                    : Color.clear
+            )
         }
+        .accessibilityIdentifier("transactions-list")
         .listStyle(.plain)
-        .scrollContentBackground(.hidden)
     }
 
-    private func statusColor(for packet: AppTrafficPacket) -> Color {
-        guard let codeStr = packet.requestInfo?.statusCode, let code = Int(codeStr) else { return .primary }
-        if code >= 200 && code < 300 { return Color(nsColor: .systemGreen) }
-        if code >= 300 && code < 400 { return Color(nsColor: .systemOrange) }
-        if code >= 400 { return Color(nsColor: .systemRed) }
+    private func columnHeader(_ title: String, count: Int, systemImage: String) -> some View {
+        HStack {
+            Label(title, systemImage: systemImage)
+                .font(.headline)
+            Spacer()
+            Text("\(count)")
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 6)
+    }
+
+    private func clearAllFilters() {
+        store.addressFilterTerm = ""
+        store.methodFilterTerm = ""
+        store.statusFilterTerm = ""
+    }
+
+    private func statusColor(for transaction: AppTrafficPacket) -> Color {
+        guard let codeString = transaction.requestInfo?.statusCode,
+              let code = Int(codeString)
+        else {
+            return .primary
+        }
+        if (200..<300).contains(code) { return .green }
+        if (300..<400).contains(code) { return .orange }
+        if code >= 400 { return .red }
         return .primary
     }
 
-    private func methodColor(for packet: AppTrafficPacket) -> Color {
-        switch packet.requestInfo?.requestMethod {
-        case .get?: return Color(nsColor: .systemTeal)
-        case .put?: return Color(nsColor: .systemBlue)
-        case .post?: return Color(nsColor: .systemOrange)
-        case .delete?: return Color(nsColor: .systemRed)
-        case .patch?: return Color(nsColor: .systemPurple)
-        default: return .secondary
-        }
+    private func contentType(for transaction: AppTrafficPacket) -> String? {
+        transaction.requestInfo?.responseHeaders?
+            .first { $0.key.caseInsensitiveCompare("Content-Type") == .orderedSame }?
+            .value
+    }
+
+    private func mediaSystemImage(for transaction: AppTrafficPacket) -> String {
+        let type = contentType(for: transaction)?.lowercased() ?? ""
+        if type.hasPrefix("image/") { return "photo" }
+        if type.hasPrefix("video/") { return "film" }
+        if type.hasPrefix("audio/") { return "waveform" }
+        return "doc.text"
     }
 }

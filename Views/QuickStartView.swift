@@ -33,7 +33,7 @@ struct QuickStartView: View {
                         step(1, "Connect your iPhone or simulator to the same Wi‑Fi network as this Mac.")
                         step(2, "Keep App Traffic Inspector running.")
                         step(3, "Add AppTrafficKit to your iOS app and enable it for Debug configurations.")
-                        step(4, "Run the app and make network requests; projects, devices, and requests appear in the sidebars.")
+                        step(4, "Run the app and make network requests; projects, devices, and transactions appear in the sidebars.")
                     }
 
                     VStack(alignment: .leading, spacing: 6) {
@@ -71,6 +71,7 @@ struct QuickStartView: View {
                         onContinue()
                         dismiss()
                     }
+                    .buttonStyle(.borderedProminent)
                     .keyboardShortcut(.defaultAction)
                 }
             }

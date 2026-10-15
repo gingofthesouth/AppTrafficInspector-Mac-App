@@ -7,7 +7,7 @@ import Foundation
 
 struct GetAppInfoTool: MCPTool {
     let name = "get_app_info"
-    let description = "Return app version, build number, uptime, total packet count."
+    let description = "Return app version, build number, uptime, and total transaction count."
     var inputSchema: [String: Any] { ["type": "object", "properties": [:] as [String: Any]] }
 
     private nonisolated(unsafe) static var launchTime = Date()
@@ -75,9 +75,9 @@ struct SetRedactionModeTool: MCPTool {
 /// Debug helper: summary of all received packets and current selection for inspecting incoming traffic.
 struct GetIncomingPacketsSummaryTool: MCPTool {
     let name = "get_incoming_packets_summary"
-    let description = "Return total packet count, current selection (project/device), and last N packet summaries (url, method, status) across all projects. Use for debugging whether packets are received and displayed."
+    let description = "Return total transaction count, current selection (project/device), and recent transaction summaries across all projects."
     var inputSchema: [String: Any] {
-        ["type": "object", "properties": ["limit": ["type": "integer", "description": "Max packet summaries to return (default 30)"] as [String: Any]] as [String: Any]]
+        ["type": "object", "properties": ["limit": ["type": "integer", "description": "Max transaction summaries to return (default 30)"] as [String: Any]] as [String: Any]]
     }
 
     func execute(arguments: [String: Any]) async throws -> MCPToolResult {
@@ -111,7 +111,10 @@ struct GetIncomingPacketsSummaryTool: MCPTool {
                     "projectName": p.projectName ?? "",
                     "deviceName": p.deviceName ?? "",
                     "packetId": String((p.packetId ?? "").prefix(8)),
-                    "url": p.url ?? "",
+                    "url": TrafficRedactor.redactURL(
+                        urlString: p.url,
+                        mode: TrafficRedactor.currentMode()
+                    ) ?? "",
                     "method": p.method ?? "",
                     "statusCode": p.statusCode ?? ""
                 ] as [String: Any]

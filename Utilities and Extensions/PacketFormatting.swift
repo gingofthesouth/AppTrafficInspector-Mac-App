@@ -12,24 +12,42 @@ public enum PacketFormatting {
     public static let maxDetailBodyBytes = 512 * 1024
 
     static func curlString(for info: AppTrafficRequestInfo) -> String {
-        guard let url = info.url else { return "" }
-        var base = "curl \(url)"
-        if info.requestMethod == .head { base += " --head" }
+        curlString(
+            url: info.url,
+            method: info.requestMethod,
+            headers: info.requestHeaders,
+            bodyBase64: info.requestBody
+        )
+    }
+
+    static func curlString(
+        url: String?,
+        method: RequestMethod?,
+        headers: [String: String]?,
+        bodyBase64: String?
+    ) -> String {
+        guard let url else { return "" }
+        var base = "curl \(shellQuote(url))"
+        if method == .head { base += " --head" }
         var parts = [base]
-        if let method = info.requestMethod, method != .get && method != .head {
+        if let method, method != .get && method != .head {
             parts.append("-X \(method.rawValue)")
         }
-        if let headers = info.requestHeaders {
+        if let headers {
             for (k, v) in headers where k != "Cookie" {
-                parts.append("-H '\(k): \(v)'")
+                parts.append("-H \(shellQuote("\(k): \(v)"))")
             }
         }
-        if let b64 = info.requestBody,
+        if let b64 = bodyBase64,
            let data = Data(base64Encoded: b64, options: .ignoreUnknownCharacters),
            let str = String(data: data, encoding: .utf8) {
-            parts.append("-d '\(str)'")
+            parts.append("-d \(shellQuote(str))")
         }
         return parts.joined(separator: " \\\n\t")
+    }
+
+    private static func shellQuote(_ value: String) -> String {
+        "'\(value.replacingOccurrences(of: "'", with: "'\\''"))'"
     }
 
     static func dataString(fromBase64 base64: String?, pretty: Bool, maxBytes: Int = PacketFormatting.maxDetailBodyBytes) -> String {

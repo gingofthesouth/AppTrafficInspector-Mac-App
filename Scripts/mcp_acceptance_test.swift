@@ -14,11 +14,16 @@ var failed = 0
 
 func log(_ msg: String) { print(msg); fflush(stdout) }
 
-func postJSON(_ json: [String: Any], sessionId: String? = nil) -> (data: Data?, response: HTTPURLResponse?, error: Error?) {
+func postJSON(
+    _ json: [String: Any],
+    sessionId: String? = nil,
+    origin: String? = nil
+) -> (data: Data?, response: HTTPURLResponse?, error: Error?) {
     var request = URLRequest(url: baseURL)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     if let sid = sessionId { request.setValue(sid, forHTTPHeaderField: "MCP-Session-Id") }
+    if let origin { request.setValue(origin, forHTTPHeaderField: "Origin") }
     request.httpBody = (try? JSONSerialization.data(withJSONObject: json))
     var outData: Data?
     var outResponse: HTTPURLResponse?
@@ -207,7 +212,20 @@ if logResult.response?.statusCode == 200, logContent != nil {
 }
 
 // 9. DELETE session
-log("9. DELETE /mcp (session teardown)...")
+log("9. Rejecting deceptive non-loopback Origin...")
+let hostileOriginResult = postJSON(
+    ["jsonrpc": "2.0", "id": 12, "method": "ping"],
+    sessionId: sid,
+    origin: "https://localhost.attacker.example"
+)
+if hostileOriginResult.response?.statusCode == 403 {
+    log("   PASS"); passed += 1
+} else {
+    log("   FAIL: expected 403, got \(hostileOriginResult.response?.statusCode ?? 0)"); failed += 1
+}
+
+// 10. DELETE session
+log("10. DELETE /mcp (session teardown)...")
 deleteSession(sid)
 log("   PASS (no error)"); passed += 1
 

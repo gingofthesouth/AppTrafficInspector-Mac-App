@@ -6,6 +6,12 @@ struct AppTrafficInspectorApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var store = AppTrafficStore()
 
+    init() {
+        #if DEBUG
+        UITestSupport.configure()
+        #endif
+    }
+
     var body: some Scene {
         WindowGroup {
             AppTrafficRootView(store: store)

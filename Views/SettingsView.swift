@@ -11,10 +11,25 @@ struct SettingsView: View {
     @AppStorage(mcpServerEnabledKey) private var mcpServerEnabled = false
     @AppStorage(TrafficRedactor.redactionModeKey) private var redactionModeRaw = RedactionMode.strict.rawValue
     @ObservedObject private var mcpStatus = MCPServerStatus.shared
+    @ObservedObject private var listenerStatus = TrafficListenerStatus.shared
 
 
     var body: some View {
         Form {
+            Section("Traffic Capture") {
+                LabeledContent("Status") {
+                    Label(
+                        listenerStatus.summary,
+                        systemImage: listenerStatus.isReady
+                            ? "antenna.radiowaves.left.and.right"
+                            : "exclamationmark.triangle"
+                    )
+                    .foregroundStyle(listenerStatus.isReady ? .green : .orange)
+                }
+                LabeledContent("Connection", value: listenerStatus.detail)
+                LabeledContent("Transaction limit", value: "1,000 per device")
+                LabeledContent("Media budget", value: "250 MiB per device")
+            }
             Section("MCP Server") {
                 Toggle("Enable MCP Server", isOn: $mcpServerEnabled)
                     .onChange(of: mcpServerEnabled) { _, newValue in
@@ -60,7 +75,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(minWidth: 400, minHeight: 280)
+        .frame(minWidth: 460, minHeight: 390)
     }
 }
 

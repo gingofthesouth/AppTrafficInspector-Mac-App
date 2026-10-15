@@ -18,7 +18,7 @@ struct AppTrafficMenuCommands: Commands {
         // Keep default App, Edit, Window, Help menus from SwiftUI
         CommandGroup(replacing: .newItem) { }
         CommandGroup(after: .pasteboard) {
-            Button("Clear Packets") { store.clearPackets() }
+            Button("Clear Transactions") { store.clearPackets() }
                 .keyboardShortcut(.delete, modifiers: [.command, .shift])
         }
         CommandGroup(after: .help) {

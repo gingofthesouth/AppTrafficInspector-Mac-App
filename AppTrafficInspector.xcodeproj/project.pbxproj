@@ -21,8 +21,14 @@
 		17EAB4322F3FDE02001C56F8 /* NetworkInterfaceDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17EAB4312F3FDE02001C56F8 /* NetworkInterfaceDetector.swift */; };
 		17EAB4332F3FDE02001C56F9 /* BonjourSingleInterfaceRegistrar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17EAB4342F3FDE02001C56F9 /* BonjourSingleInterfaceRegistrar.swift */; };
 		17F0A0012E9F700000F5C270 /* QuickStartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17F0A0002E9F700000F5C270 /* QuickStartView.swift */; };
+		2FBC1B5CEAC49C9A8A5F269F /* MediaTransactionJourneyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92180C1BA4FF2DD2802497B3 /* MediaTransactionJourneyTests.swift */; };
+		98777C499681A2BB846D3B30 /* TrafficBrowserScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB6DA935FF8336B04F11913 /* TrafficBrowserScreen.swift */; };
+		A07E6486AD7896D943B8B07C /* UITestEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D7BA235A94309C2C5A205A1 /* UITestEnvironment.swift */; };
 		A1B2C3D42EA1000000F5C257 /* AppTrafficInspectorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D32EA1000000F5C257 /* AppTrafficInspectorApp.swift */; };
 		A1B2C3D62EA1000A00F5C257 /* AppTrafficMenuCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D52EA1000A00F5C257 /* AppTrafficMenuCommands.swift */; };
+		A1C4A99698F6E7C66FD7CB40 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 487DA54CA80F43123D5FD92F /* Cocoa.framework */; };
+		BA18658931E6A12B00CF0112 /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8952D82D8CC374B605E8B79 /* UITestSupport.swift */; };
+		BC4445B86D221602BB7D0C92 /* GlassComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7CD718A4B23253D5B071965 /* GlassComponents.swift */; };
 		BC73DFAE215BFB18002E533B /* AppTrafficPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC73DFAD215BFB18002E533B /* AppTrafficPublisher.swift */; };
 		BC911A422168C00500B755D4 /* NSColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC911A412168C00500B755D4 /* NSColor.swift */; };
 		BCA60B41216201B900B9DCAD /* AppTrafficConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA60B40216201B900B9DCAD /* AppTrafficConfiguration.swift */; };
@@ -63,6 +69,13 @@
 			remoteGlobalIDString = BCD0E022210F5E0D00CE5C7B;
 			remoteInfo = AppTrafficInspector;
 		};
+		ED3F36A4EFDFD94EEA4531D5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BCD0E01B210F5E0D00CE5C7B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BCD0E022210F5E0D00CE5C7B;
+			remoteInfo = "App Traffic Inspector";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -80,6 +93,11 @@
 		17EAB4312F3FDE02001C56F8 /* NetworkInterfaceDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkInterfaceDetector.swift; sourceTree = "<group>"; };
 		17EAB4342F3FDE02001C56F9 /* BonjourSingleInterfaceRegistrar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourSingleInterfaceRegistrar.swift; sourceTree = "<group>"; };
 		17F0A0002E9F700000F5C270 /* QuickStartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickStartView.swift; sourceTree = "<group>"; };
+		3CB6DA935FF8336B04F11913 /* TrafficBrowserScreen.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TrafficBrowserScreen.swift; path = Screens/TrafficBrowserScreen.swift; sourceTree = "<group>"; };
+		487DA54CA80F43123D5FD92F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		6A793B4F07F09F334EDC40F8 /* AppTrafficInspectorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppTrafficInspectorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7D7BA235A94309C2C5A205A1 /* UITestEnvironment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UITestEnvironment.swift; path = Infrastructure/UITestEnvironment.swift; sourceTree = "<group>"; };
+		92180C1BA4FF2DD2802497B3 /* MediaTransactionJourneyTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MediaTransactionJourneyTests.swift; path = Journeys/MediaTransactionJourneyTests.swift; sourceTree = "<group>"; };
 		A1B2C3D32EA1000000F5C257 /* AppTrafficInspectorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficInspectorApp.swift; sourceTree = "<group>"; };
 		A1B2C3D52EA1000A00F5C257 /* AppTrafficMenuCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficMenuCommands.swift; sourceTree = "<group>"; };
 		BC73DFAD215BFB18002E533B /* AppTrafficPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficPublisher.swift; sourceTree = "<group>"; };
@@ -100,6 +118,8 @@
 		BCEB9AB8217DD653008BBF3C /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
 		BCFC5CB9213C7435004E5995 /* AppTrafficRequestInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficRequestInfo.swift; sourceTree = "<group>"; };
 		BCFC854F21384981001EC6D7 /* AppTrafficPacket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrafficPacket.swift; sourceTree = "<group>"; };
+		C7CD718A4B23253D5B071965 /* GlassComponents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GlassComponents.swift; sourceTree = "<group>"; };
+		C8952D82D8CC374B605E8B79 /* UITestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UITestSupport.swift; sourceTree = "<group>"; };
 		MCP001002E9F35B300F5C259 /* DevLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevLogger.swift; sourceTree = "<group>"; };
 		MCP002002E9F35B300F5C260 /* TrafficRedactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrafficRedactor.swift; sourceTree = "<group>"; };
 		MCP003002E9F35B300F5C261 /* MCPHTTPParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPHTTPParser.swift; sourceTree = "<group>"; };
@@ -133,6 +153,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C298F3D40AF5371E84A7409A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1C4A99698F6E7C66FD7CB40 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -162,6 +190,7 @@
 				17DBCF142E9F35B300F5C257 /* AppTrafficRootView.swift */,
 				MCP00E002E9F35B300F5C26C /* SettingsView.swift */,
 				MCP011002E9F35B300F5C26F /* MCPConsoleView.swift */,
+				C7CD718A4B23253D5B071965 /* GlassComponents.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -177,6 +206,25 @@
 				MCP004002E9F35B300F5C262 /* PacketFormatting.swift */,
 			);
 			path = "Utilities and Extensions";
+			sourceTree = "<group>";
+		};
+		78AC9E3B276C163691C63AB1 /* AppTrafficInspectorUITests */ = {
+			isa = PBXGroup;
+			children = (
+				7D7BA235A94309C2C5A205A1 /* UITestEnvironment.swift */,
+				3CB6DA935FF8336B04F11913 /* TrafficBrowserScreen.swift */,
+				92180C1BA4FF2DD2802497B3 /* MediaTransactionJourneyTests.swift */,
+			);
+			name = AppTrafficInspectorUITests;
+			path = AppTrafficInspectorUITests;
+			sourceTree = "<group>";
+		};
+		8DDB6BD5F3D16E9B432111AC /* OS X */ = {
+			isa = PBXGroup;
+			children = (
+				487DA54CA80F43123D5FD92F /* Cocoa.framework */,
+			);
+			name = "OS X";
 			sourceTree = "<group>";
 		};
 		BCBD86DF21591550009CBEA7 /* Models and Data Store */ = {
@@ -209,6 +257,9 @@
 				BCD0E030210F5E0D00CE5C7B /* AppTrafficInspector.entitlements */,
 				BCD0E033210F5E0D00CE5C7B /* AppTrafficInspectorTests */,
 				BCD0E024210F5E0D00CE5C7B /* Products */,
+				C8952D82D8CC374B605E8B79 /* UITestSupport.swift */,
+				DF1D563BE2CEC030B371A0C7 /* Frameworks */,
+				78AC9E3B276C163691C63AB1 /* AppTrafficInspectorUITests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -217,6 +268,7 @@
 			children = (
 				BCD0E023210F5E0D00CE5C7B /* App Traffic Inspector.app */,
 				BCD0E035210F5E0D00CE5C7B /* AppTrafficInspectorTests.xctest */,
+				6A793B4F07F09F334EDC40F8 /* AppTrafficInspectorUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -227,6 +279,14 @@
 				BCD0E036210F5E0D00CE5C7B /* TrafficRedactorTests.swift */,
 			);
 			path = AppTrafficInspectorTests;
+			sourceTree = "<group>";
+		};
+		DF1D563BE2CEC030B371A0C7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8DDB6BD5F3D16E9B432111AC /* OS X */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		MCP000002E9F35B300F5C258 /* MCP */ = {
@@ -272,8 +332,6 @@
 			dependencies = (
 			);
 			name = "App Traffic Inspector";
-			packageProductDependencies = (
-			);
 			productName = AppTrafficInspector;
 			productReference = BCD0E023210F5E0D00CE5C7B /* App Traffic Inspector.app */;
 			productType = "com.apple.product-type.application";
@@ -294,6 +352,24 @@
 			productName = AppTrafficInspectorTests;
 			productReference = BCD0E035210F5E0D00CE5C7B /* AppTrafficInspectorTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		CFC38F1785EF0721B8C92257 /* AppTrafficInspectorUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C796448FE4451942948F066F /* Build configuration list for PBXNativeTarget "AppTrafficInspectorUITests" */;
+			buildPhases = (
+				0169FA3B6B80090674E88662 /* Sources */,
+				C298F3D40AF5371E84A7409A /* Frameworks */,
+				81512405C790B962178F66FE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F68B83B46EDF25A153506149 /* PBXTargetDependency */,
+			);
+			name = AppTrafficInspectorUITests;
+			productName = AppTrafficInspectorUITests;
+			productReference = 6A793B4F07F09F334EDC40F8 /* AppTrafficInspectorUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
@@ -320,19 +396,25 @@
 				Base,
 			);
 			mainGroup = BCD0E01A210F5E0D00CE5C7B;
-			packageReferences = (
-			);
 			productRefGroup = BCD0E024210F5E0D00CE5C7B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				BCD0E022210F5E0D00CE5C7B /* App Traffic Inspector */,
 				BCD0E034210F5E0D00CE5C7B /* AppTrafficInspectorTests */,
+				CFC38F1785EF0721B8C92257 /* AppTrafficInspectorUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		81512405C790B962178F66FE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BCD0E021210F5E0D00CE5C7B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -344,6 +426,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0169FA3B6B80090674E88662 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A07E6486AD7896D943B8B07C /* UITestEnvironment.swift in Sources */,
+				98777C499681A2BB846D3B30 /* TrafficBrowserScreen.swift in Sources */,
+				2FBC1B5CEAC49C9A8A5F269F /* MediaTransactionJourneyTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BCD0E01F210F5E0D00CE5C7B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -392,6 +484,8 @@
 				MCP00F012E9F35B300F5C26D /* TrafficEventBus.swift in Sources */,
 				MCP010012E9F35B300F5C26E /* MCPActivityLog.swift in Sources */,
 				MCP011012E9F35B300F5C26F /* MCPConsoleView.swift in Sources */,
+				BA18658931E6A12B00CF0112 /* UITestSupport.swift in Sources */,
+				BC4445B86D221602BB7D0C92 /* GlassComponents.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -411,13 +505,56 @@
 			target = BCD0E022210F5E0D00CE5C7B /* App Traffic Inspector */;
 			targetProxy = BCD0E03B210F5E0D00CE5C7B /* PBXContainerItemProxy */;
 		};
+		F68B83B46EDF25A153506149 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "App Traffic Inspector";
+			target = BCD0E022210F5E0D00CE5C7B /* App Traffic Inspector */;
+			targetProxy = ED3F36A4EFDFD94EEA4531D5 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		6ACF9C5EEB9FC53CF641F017 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = nz.ging.AppTrafficInspectorUITests;
+				PRODUCT_MODULE_NAME = AppTrafficInspectorUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+				TEST_TARGET_NAME = "App Traffic Inspector";
+			};
+			name = Debug;
+		};
+		909D902933BE5617867FB328 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = nz.ging.AppTrafficInspectorUITests;
+				PRODUCT_MODULE_NAME = AppTrafficInspectorUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+				TEST_TARGET_NAME = "App Traffic Inspector";
+			};
+			name = Release;
+		};
 		BCD0E03D210F5E0D00CE5C7B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_ALLOWED = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				PRODUCT_BUNDLE_IDENTIFIER = nz.ging.AppTrafficInspectorTests;
@@ -431,6 +568,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_ALLOWED = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				PRODUCT_BUNDLE_IDENTIFIER = nz.ging.AppTrafficInspectorTests;
@@ -604,7 +742,7 @@
 					/usr/lib/swift,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				OTHER_LDFLAGS = "-lsystem_dnssd";
 				PRODUCT_BUNDLE_IDENTIFIER = nz.ging.AppTrafficInspector;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -654,7 +792,7 @@
 					/usr/lib/swift,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				OTHER_LDFLAGS = "-lsystem_dnssd";
 				PRODUCT_BUNDLE_IDENTIFIER = nz.ging.AppTrafficInspector;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -689,6 +827,15 @@
 			buildConfigurations = (
 				BCD0E04A210F5E0D00CE5C7B /* Debug */,
 				BCD0E04B210F5E0D00CE5C7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C796448FE4451942948F066F /* Build configuration list for PBXNativeTarget "AppTrafficInspectorUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				909D902933BE5617867FB328 /* Release */,
+				6ACF9C5EEB9FC53CF641F017 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

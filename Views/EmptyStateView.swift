@@ -9,30 +9,37 @@ import SwiftUI
 import AppKit
 
 struct EmptyStateView: View {
+    @ObservedObject private var listenerStatus = TrafficListenerStatus.shared
+
     var body: some View {
-        ZStack {
-            Color.clear
-            VStack(spacing: 16) {
-                Image(systemName: "iphone")
-                    .font(.system(size: 64, weight: .regular))
-                    .foregroundStyle(.tertiary)
-                Text("Waiting for incoming connections")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
+        ContentUnavailableView {
+            Label("Waiting for transactions", systemImage: "iphone")
+                .symbolEffect(.pulse, options: .repeating)
+        } description: {
+            VStack(spacing: 10) {
                 Text("Make sure your iOS device is on the same network and the app has AppTrafficKit enabled in Debug builds.")
-                    .font(.footnote)
+                    .font(.callout)
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
                     .frame(maxWidth: 420)
-                Button("Quick start…") {
-                    NotificationCenter.default.post(name: .showQuickStartGuide, object: nil)
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(listenerStatus.isReady ? Color.green : Color.orange)
+                        .frame(width: 8, height: 8)
+                    Text(listenerStatus.summary)
+                    Text("•")
+                    Text(listenerStatus.detail)
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.regular)
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
-            .padding(24)
+        } actions: {
+            Button("Quick start…") {
+                NotificationCenter.default.post(name: .showQuickStartGuide, object: nil)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.regular)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(.thinMaterial)
     }
 }

@@ -7,7 +7,7 @@ import Foundation
 
 struct ListProjectsTool: MCPTool {
     let name = "list_projects"
-    let description = "List all connected projects with device and packet counts."
+    let description = "List all connected projects with device and transaction counts."
     var inputSchema: [String: Any] { ["type": "object", "properties": [:] as [String: Any]] }
 
     func execute(arguments: [String: Any]) async throws -> MCPToolResult {
@@ -60,7 +60,7 @@ struct ListDevicesTool: MCPTool {
 
 struct ListPacketsTool: MCPTool {
     let name = "list_packets"
-    let description = "List packet summaries for a project and device, with optional filters (method, statusCode, urlPattern, limit, offset)."
+    let description = "List transaction summaries for a project and device, with optional filters (method, statusCode, urlPattern, limit, offset)."
     var inputSchema: [String: Any] {
         [
             "type": "object",
@@ -110,7 +110,10 @@ struct ListPacketsTool: MCPTool {
                 [
                     "packetId": p.packetId ?? "",
                     "method": p.requestInfo?.requestMethod?.rawValue ?? "",
-                    "url": p.requestInfo?.url ?? "",
+                    "url": TrafficRedactor.redactURL(
+                        urlString: p.requestInfo?.url,
+                        mode: TrafficRedactor.currentMode()
+                    ) ?? "",
                     "statusCode": p.requestInfo?.statusCode ?? "",
                     "startDate": p.requestInfo?.startDate?.timeIntervalSince1970 ?? 0
                 ] as [String: Any]
@@ -124,7 +127,7 @@ struct ListPacketsTool: MCPTool {
 
 struct GetPacketDetailTool: MCPTool {
     let name = "get_packet_detail"
-    let description = "Get full detail for a packet by packetId. Applies privacy redaction."
+    let description = "Get full detail for a transaction by packetId. Applies privacy redaction."
     var inputSchema: [String: Any] {
         ["type": "object", "properties": ["packetId": ["type": "string", "description": "Packet ID"] as [String: Any]] as [String: Any]]
     }
@@ -172,7 +175,7 @@ struct GetPacketDetailTool: MCPTool {
 
 struct SearchPacketsTool: MCPTool {
     let name = "search_packets"
-    let description = "Full-text search across URLs, headers, and bodies. Returns matching packet summaries."
+    let description = "Full-text search across URLs, headers, and bodies. Returns matching transaction summaries."
     var inputSchema: [String: Any] {
         ["type": "object", "properties": ["query": ["type": "string"] as [String: Any]] as [String: Any]]
     }
@@ -192,7 +195,10 @@ struct SearchPacketsTool: MCPTool {
                             list.append([
                                 "packetId": packet.packetId ?? "",
                                 "method": packet.requestInfo?.requestMethod?.rawValue ?? "",
-                                "url": packet.requestInfo?.url ?? "",
+                                "url": TrafficRedactor.redactURL(
+                                    urlString: packet.requestInfo?.url,
+                                    mode: TrafficRedactor.currentMode()
+                                ) ?? "",
                                 "statusCode": packet.requestInfo?.statusCode ?? ""
                             ] as [String: Any])
                         }
@@ -225,7 +231,7 @@ struct SearchPacketsTool: MCPTool {
 
 struct GetPacketCurlTool: MCPTool {
     let name = "get_packet_curl"
-    let description = "Get cURL command for a packet by packetId."
+    let description = "Get cURL command for a transaction by packetId."
     var inputSchema: [String: Any] {
         ["type": "object", "properties": ["packetId": ["type": "string"] as [String: Any]] as [String: Any]]
     }
@@ -237,7 +243,20 @@ struct GetPacketCurlTool: MCPTool {
         let curl = await MainActor.run {
             guard let packet = AppTrafficController.shared.projects.flatMap(\.devices).flatMap(\.packets).first(where: { $0.packetId == packetId }),
                   let info = packet.requestInfo else { return "(packet not found)" }
-            let c = PacketFormatting.curlString(for: info)
+            let redacted = TrafficRedactor.redactRequestInfo(
+                url: info.url,
+                requestHeaders: info.requestHeaders,
+                requestBody: info.requestBody,
+                responseHeaders: nil,
+                responseData: nil,
+                mode: TrafficRedactor.currentMode()
+            )
+            let c = PacketFormatting.curlString(
+                url: redacted.url,
+                method: info.requestMethod,
+                headers: redacted.requestHeaders,
+                bodyBase64: redacted.requestBody
+            )
             return c.isEmpty ? "(no URL)" : c
         }
         return .text(curl)

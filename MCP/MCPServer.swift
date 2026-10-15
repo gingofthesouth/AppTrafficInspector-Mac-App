@@ -77,7 +77,8 @@ final class MCPServer: @unchecked Sendable {
             let port = NWEndpoint.Port(rawValue: MCPPort)!
             let parameters = NWParameters.tcp
             parameters.allowLocalEndpointReuse = true
-            let listener = try NWListener(using: parameters, on: port)
+            parameters.requiredLocalEndpoint = .hostPort(host: "127.0.0.1", port: port)
+            let listener = try NWListener(using: parameters)
             self.listener = listener
             listener.stateUpdateHandler = { state in
                 switch state {
@@ -185,6 +186,10 @@ final class MCPServer: @unchecked Sendable {
                     }
                 } catch MCPHTTPParser.ParseError.incomplete {
                     readMore()
+                } catch MCPHTTPParser.ParseError.payloadTooLarge {
+                    self.logActivity(direction: .internal_, summary: "Request too large", statusCode: 413)
+                    self.sendResponse(connection, statusCode: 413, body: nil)
+                    connection.cancel()
                 } catch {
                     self.logActivity(direction: .internal_, summary: "Parse error", detail: String(describing: error), statusCode: 400)
                     self.sendResponse(connection, statusCode: 400, body: nil)
@@ -195,10 +200,20 @@ final class MCPServer: @unchecked Sendable {
         readMore()
     }
 
+    private static func isAllowedOrigin(_ origin: String) -> Bool {
+        guard let components = URLComponents(string: origin),
+              let scheme = components.scheme?.lowercased(),
+              let host = components.host?.lowercased(),
+              scheme == "http" || scheme == "https"
+        else {
+            return false
+        }
+        return host == "localhost" || host == "127.0.0.1" || host == "::1"
+    }
+
     private func handleRequest(_ request: MCPHTTPRequest, connection: NWConnection) {
         // Validate Origin per MCP spec (allow localhost)
-        if let origin = request.headers["origin"], !origin.isEmpty,
-           !origin.contains("127.0.0.1"), !origin.contains("localhost") {
+        if let origin = request.headers["origin"], !origin.isEmpty, !Self.isAllowedOrigin(origin) {
             logActivity(direction: .internal_, summary: "Rejected: origin", detail: origin)
             sendResponse(connection, statusCode: 403, body: nil)
             return
@@ -310,7 +325,10 @@ final class MCPServer: @unchecked Sendable {
 
     private func sendResponse(_ connection: NWConnection, statusCode: Int, headers: [String: String]? = nil, body: Data?) {
         let defaultHeaders = ["Content-Type": "application/json; charset=utf-8"]
-        let h = headers ?? defaultHeaders
+        var h = headers ?? defaultHeaders
+        if body == nil {
+            h["Content-Length"] = "0"
+        }
         let data = MCPHTTPParser.response(statusCode: statusCode, headers: h, body: body)
         sendRaw(connection, data: data)
     }

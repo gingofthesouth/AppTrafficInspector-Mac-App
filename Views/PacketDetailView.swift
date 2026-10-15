@@ -17,7 +17,7 @@ struct PacketDetailView: View {
             if let info = packet?.requestInfo {
                 // Header metrics (status, method, url, timing, sizes)
                 header(info: info)
-                    .padding(.bottom, 4)
+                    .padding(.bottom, 2)
                 segmentedBar()
 
                 contentView(for: info, tab: selected, packet: packet)
@@ -25,58 +25,51 @@ struct PacketDetailView: View {
                 HStack(spacing: 8) {
                     Spacer()
                     Button("Copy") { copyToClipboard(detailText(for: info, tab: selected, pretty: true)) }
+                        .buttonStyle(.bordered)
                     if selected == .overview {
                         Button("cURL") { copyToClipboard(PacketFormatting.curlString(for: info)) }
+                            .buttonStyle(.bordered)
                     }
                 }
             } else {
-                Text("No packet selected").foregroundStyle(.secondary)
+                ContentUnavailableView(
+                    "No Transaction Selected",
+                    systemImage: "network",
+                    description: Text("Select a transaction to inspect its request and response.")
+                )
+            }
+        }
+        .padding(12)
+        .task(id: packet?.packetId) {
+            if let info = packet?.requestInfo,
+               isMediaContentType(contentType(in: info.responseHeaders)) {
+                selected = .responseBody
+            } else {
+                selected = .overview
             }
         }
     }
     
     // MARK: - Segmented bar
     private func segmentedBar() -> some View {
-        HStack(spacing: 6) {
-            segmentButton(.overview, title: "Overview", systemImage: "doc.text.magnifyingglass", tint: .secondary)
-            Divider().frame(height: 22).padding()
-            Text("Request").font(.caption2).foregroundStyle(.secondary)
-            segmentButton(.requestHeaders, title: "Headers", systemImage: "square.and.arrow.up.on.square", tint: Color(nsColor: .systemBlue))
-            segmentButton(.parameters, title: "Parameters", systemImage: "slider.horizontal.3", tint: Color(nsColor: .systemBlue))
-            segmentButton(.requestBody, title: "Body", systemImage: "tray.and.arrow.up", tint: Color(nsColor: .systemBlue))
-            Spacer()
-            Text("Response").font(.caption2).foregroundStyle(.secondary)
-            segmentButton(.responseHeaders, title: "Headers", systemImage: "arrow.down.doc", tint: Color(nsColor: .systemGreen))
-            segmentButton(.responseBody, title: "Body", systemImage: "tray.and.arrow.down", tint: Color(nsColor: .systemGreen))
-            Spacer()
+        Picker("Detail Section", selection: $selected) {
+            Label("Overview", systemImage: "doc.text.magnifyingglass")
+                .tag(DetailTab.overview)
+            Label("Req Headers", systemImage: "square.and.arrow.up.on.square")
+                .tag(DetailTab.requestHeaders)
+            Label("Parameters", systemImage: "slider.horizontal.3")
+                .tag(DetailTab.parameters)
+            Label("Req Body", systemImage: "tray.and.arrow.up")
+                .tag(DetailTab.requestBody)
+            Label("Resp Headers", systemImage: "arrow.down.doc")
+                .tag(DetailTab.responseHeaders)
+            Label("Resp Body", systemImage: "tray.and.arrow.down")
+                .tag(DetailTab.responseBody)
         }
+        .pickerStyle(.segmented)
+        .labelsHidden()
         .padding(.vertical, 2)
     }
-
-    @ViewBuilder
-    private func segmentButton(_ tab: DetailTab, title: String, systemImage: String, tint: Color) -> some View {
-        let isSelected = selected == tab
-        Button {
-            withAnimation(.easeInOut(duration: 0.15)) { selected = tab }
-        } label: {
-            Label(title, systemImage: systemImage)
-                .labelStyle(.titleAndIcon)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(isSelected ? tint : .secondary)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(isSelected ? tint.opacity(0.15) : Color.clear)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(isSelected ? tint.opacity(0.7) : Color.secondary.opacity(0.2), lineWidth: 1)
-                )
-        }
-        .buttonStyle(.plain)
-    }
-
 
     private func detailText(for info: AppTrafficRequestInfo, tab: DetailTab, pretty: Bool) -> String {
         switch tab {
@@ -189,17 +182,28 @@ extension PacketDetailView {
                 ScrollView { textMono(queryItemsString(url: url)) }
             } else { EmptyBodyView() }
         case .requestBody:
-            bodyView(base64: info.requestBody)
+            bodyView(base64: info.requestBody, contentType: contentType(in: info.requestHeaders))
         case .responseHeaders:
             ScrollView { textMono(keyValuesString(info.responseHeaders)) }
         case .responseBody:
-            bodyView(base64: info.responseData)
+            bodyView(base64: info.responseData, contentType: contentType(in: info.responseHeaders))
         }
     }
 
     @ViewBuilder
-    private func bodyView(base64: String?) -> some View {
-        BodyViewAsync(base64: base64)
+    private func bodyView(base64: String?, contentType: String?) -> some View {
+        BodyViewAsync(base64: base64, contentType: contentType)
+    }
+
+    private func contentType(in headers: [String: String]?) -> String? {
+        headers?.first { $0.key.caseInsensitiveCompare("Content-Type") == .orderedSame }?.value
+    }
+
+    private func isMediaContentType(_ contentType: String?) -> Bool {
+        guard let contentType = contentType?.lowercased() else { return false }
+        return contentType.hasPrefix("image/")
+            || contentType.hasPrefix("video/")
+            || contentType.hasPrefix("audio/")
     }
 
     private func textMono(_ text: String) -> some View {

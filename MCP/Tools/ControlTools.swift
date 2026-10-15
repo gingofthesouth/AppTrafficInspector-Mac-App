@@ -23,7 +23,7 @@ struct RestartListenerTool: MCPTool {
 
 struct ClearPacketsTool: MCPTool {
     let name = "clear_packets"
-    let description = "Clear packets for the currently selected device (DEBUG only)."
+    let description = "Clear transactions for the currently selected device (DEBUG only)."
     var inputSchema: [String: Any] { ["type": "object", "properties": [:] as [String: Any]] }
 
     func execute(arguments: [String: Any]) async throws -> MCPToolResult {
@@ -36,7 +36,7 @@ struct ClearPacketsTool: MCPTool {
 
 struct InjectTestPacketTool: MCPTool {
     let name = "inject_test_packet"
-    let description = "Inject a synthetic packet (JSON body) for testing (DEBUG only)."
+    let description = "Inject a synthetic HTTP transaction (JSON body) for testing (DEBUG only)."
     var inputSchema: [String: Any] {
         ["type": "object", "properties": ["packetJson": ["type": "string", "description": "JSON string of AppTrafficPacket"] as [String: Any]] as [String: Any]]
     }

@@ -6,10 +6,13 @@ App Traffic Inspector is a native macOS network debugging tool for iOS developme
 - Real-time network traffic monitoring from iOS apps
 - Request/response inspection with syntax highlighting
 - JSON formatting and visualization
+- Native image previews and video/audio playback
+- Native macOS 26 Liquid Glass interface
 - Device and project separation
+- Bounded per-device retention: 1,000 transactions and 250 MiB of decoded request/response bodies
 - No proxy configuration or certificate installation required
 - Bonjour-based automatic discovery
-- **MCP (Model Context Protocol) server** — expose traffic and tools to Cursor, Claude Code, and other MCP clients
+- **MCP (Model Context Protocol) server** — expose redacted transaction data and tools to local MCP clients
 
 ## Installation
 1. Clone the repository
@@ -24,7 +27,7 @@ Run an iOS app using the AppTrafficKit framework (coming soon) on the same netwo
 
 ## MCP Server — Add to your AI IDE
 
-The app includes an MCP server (Streamable HTTP on port **43436**) so Cursor, Claude Code, and other clients can list projects/devices, inspect packets, search traffic, and get cURL commands. **The app must be running with “Enable MCP Server” turned on in Settings** before any client can connect.
+The app includes a loopback-only MCP server (Streamable HTTP on port **43436**) so Cursor, Claude Code, and other local clients can list projects/devices, inspect transactions, search traffic, and get shell-safe cURL commands. **The app must be running with “Enable MCP Server” turned on in Settings** before any client can connect.
 
 ### Add to Cursor
 
@@ -99,8 +102,35 @@ Add a server entry with `"url": "http://127.0.0.1:43436/mcp"` in that client’s
 ---
 
 ## System Requirements
-- macOS 11.0 or later
-- Xcode 13.0 or later (for building)
+- macOS 26.0 or later
+- Xcode 26.0 or later (for building)
+
+## Build and test
+
+```bash
+# Build
+xcodebuild -project AppTrafficInspector.xcodeproj \
+  -scheme AppTrafficInspector \
+  -destination 'platform=macOS' build
+
+# Run the 19 unit tests without requiring a local development certificate
+xcodebuild -project AppTrafficInspector.xcodeproj \
+  -scheme AppTrafficInspector \
+  -destination 'platform=macOS' \
+  CODE_SIGNING_ALLOWED=NO \
+  -only-testing:AppTrafficInspectorTests test
+
+# Build, launch, and run the 14 MCP acceptance checks
+./Scripts/run_acceptance_tests.sh
+
+# Run the deterministic image-transaction UI journey
+xcodebuild -project AppTrafficInspector.xcodeproj \
+  -scheme AppTrafficInspector \
+  -destination 'platform=macOS' \
+  -only-testing:AppTrafficInspectorUITests/MediaTransactionJourneyTests test
+```
+
+The first UI-test run can require approval under **System Settings → Privacy & Security → Automation**. A timeout while enabling automation mode indicates missing host permission rather than an app assertion failure.
 
 ## License
 Apache 2.0

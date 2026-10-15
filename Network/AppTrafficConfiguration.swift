@@ -15,4 +15,5 @@ class AppTrafficConfiguration: NSObject {
     }
     static let netServicePort: UInt16 = 43435
     static let portString: String = String(netServicePort)
+    static let maximumTransactionBytes = 25 * 1024 * 1024
 }

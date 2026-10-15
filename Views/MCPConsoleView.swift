@@ -47,6 +47,7 @@ struct MCPConsoleView: View {
             Button("Clear") {
                 Task { @MainActor in MCPActivityLog.shared.clear() }
             }
+            .buttonStyle(.bordered)
             .keyboardShortcut("k", modifiers: .command)
             Spacer()
         }

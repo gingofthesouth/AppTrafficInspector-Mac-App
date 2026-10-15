@@ -159,19 +159,24 @@ public enum TrafficRedactor {
         var rRespBody = responseData
         var bodyFieldsRedacted = 0
         if mode == .strict {
-            if let reqData = requestBody?.data(using: .utf8), let redactedData = redactJSONFields(data: reqData, mode: mode), let str = String(data: redactedData, encoding: .utf8) {
-                rReqBody = redactBody(text: str, mode: mode)
-                bodyFieldsRedacted += 1
-            } else {
-                rReqBody = redactBody(text: requestBody, mode: mode)
-            }
-            if let respData = responseData?.data(using: .utf8), let redactedData = redactJSONFields(data: respData, mode: mode), let str = String(data: redactedData, encoding: .utf8) {
-                rRespBody = redactBody(text: str, mode: mode)
-                bodyFieldsRedacted += 1
-            } else {
-                rRespBody = redactBody(text: responseData, mode: mode)
-            }
+            rReqBody = redactBase64Body(requestBody)
+            rRespBody = redactBase64Body(responseData)
+            bodyFieldsRedacted += rReqBody != requestBody ? 1 : 0
+            bodyFieldsRedacted += rRespBody != responseData ? 1 : 0
         }
         return (rUrl, rHeaders, rRespHeaders, rReqBody, rRespBody, headersRedacted, bodyFieldsRedacted)
+    }
+
+    private static func redactBase64Body(_ encoded: String?) -> String? {
+        guard let encoded,
+              let data = Data(base64Encoded: encoded, options: .ignoreUnknownCharacters),
+              let source = String(data: data, encoding: .utf8)
+        else {
+            return encoded
+        }
+        let jsonRedacted = redactJSONFields(data: data, mode: .strict) ?? data
+        let jsonText = String(data: jsonRedacted, encoding: .utf8) ?? source
+        let patternRedacted = redactBody(text: jsonText, mode: .strict) ?? jsonText
+        return Data(patternRedacted.utf8).base64EncodedString()
     }
 }

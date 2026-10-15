@@ -15,14 +15,28 @@ struct MCPHTTPRequest: Sendable {
 }
 
 struct MCPHTTPParser {
+    static let maxRequestBodyBytes = 2 * 1024 * 1024
+    static let maxHeaderBytes = 64 * 1024
+
     enum ParseError: Error, Sendable {
         case incomplete
         case invalidRequestLine
         case invalidHeader
+        case invalidContentLength
+        case payloadTooLarge
     }
 
     /// Parse bytes into request line, headers, and body (by Content-Length).
     static func parseRequest(_ data: inout Data) throws -> MCPHTTPRequest? {
+        let headerTerminator = Data("\r\n\r\n".utf8)
+        if let headerRange = data.firstRange(of: headerTerminator) {
+            guard headerRange.upperBound <= maxHeaderBytes else {
+                throw ParseError.payloadTooLarge
+            }
+        } else if data.count > maxHeaderBytes {
+            throw ParseError.payloadTooLarge
+        }
+
         guard let firstLineEnd = data.firstRange(of: Data("\r\n".utf8)) else { return nil }
         let requestLine = data.prefix(upTo: firstLineEnd.startIndex)
         data.removeSubrange(..<firstLineEnd.endIndex)
@@ -45,7 +59,18 @@ struct MCPHTTPParser {
             if !key.isEmpty { headers[key] = value }
         }
 
-        let contentLength = Int(headers["content-length"] ?? "0") ?? 0
+        let contentLength: Int
+        if let rawContentLength = headers["content-length"] {
+            guard let parsed = Int(rawContentLength), parsed >= 0 else {
+                throw ParseError.invalidContentLength
+            }
+            guard parsed <= maxRequestBodyBytes else {
+                throw ParseError.payloadTooLarge
+            }
+            contentLength = parsed
+        } else {
+            contentLength = 0
+        }
         if contentLength > 0 {
             guard data.count >= contentLength else { throw ParseError.incomplete }
             let body = Data(data.prefix(contentLength))
@@ -111,6 +136,7 @@ struct MCPHTTPParser {
         case 403: return "Forbidden"
         case 404: return "Not Found"
         case 405: return "Method Not Allowed"
+        case 413: return "Payload Too Large"
         default: return "Unknown"
         }
     }

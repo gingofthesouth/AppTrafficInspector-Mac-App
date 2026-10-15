@@ -44,7 +44,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "BCD0E03F210F5E0D00CE5C7B"
+               BlueprintIdentifier = "CFC38F1785EF0721B8C92257"
                BuildableName = "AppTrafficInspectorUITests.xctest"
                BlueprintName = "AppTrafficInspectorUITests"
                ReferencedContainer = "container:AppTrafficInspector.xcodeproj">
