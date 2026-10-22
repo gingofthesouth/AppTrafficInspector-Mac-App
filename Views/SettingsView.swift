@@ -9,6 +9,7 @@ private let mcpServerEnabledKey = "mcpServerEnabled"
 
 struct SettingsView: View {
     @AppStorage(mcpServerEnabledKey) private var mcpServerEnabled = false
+    @AppStorage("peerToPeerEnabled") private var peerToPeerEnabled = true
     @AppStorage(TrafficRedactor.redactionModeKey) private var redactionModeRaw = RedactionMode.strict.rawValue
     @ObservedObject private var mcpStatus = MCPServerStatus.shared
     @ObservedObject private var listenerStatus = TrafficListenerStatus.shared
@@ -29,6 +30,10 @@ struct SettingsView: View {
                     .foregroundStyle(listenerStatus.isReady ? .green : .orange)
                 }
                 LabeledContent("Connection", value: listenerStatus.detail)
+                Toggle("Allow peer-to-peer Wi-Fi discovery (AWDL)", isOn: $peerToPeerEnabled)
+                    .onChange(of: peerToPeerEnabled) { _, _ in
+                        AppTrafficController.shared.publisher.startPublishing()
+                    }
                 LabeledContent("Transaction limit", value: "1,000 per device")
                 LabeledContent("Media budget", value: "250 MiB per device")
             }

@@ -36,7 +36,9 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
     /// Guarded by `connectionsLock`: mutated from the listener queue and every connection's queue.
     private var connections: [NWConnection] = []
     private let connectionsLock = NSLock()
-    private var bonjourRegistrar: BonjourSingleInterfaceRegistrar?
+    private var bonjourRegistrars: [BonjourSingleInterfaceRegistrar] = []
+    private var pathMonitor: NWPathMonitor?
+    private var interfaceSignature = ""
 
     /// Current listener state for MCP get_server_status. Nil if listener not created.
     var listenerState: NWListener.State? { listener?.state }
@@ -47,8 +49,7 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
     func startPublishing() {
         // Tear down existing listener and Bonjour so the port is released before rebinding
         let hadExisting = self.listener != nil
-        bonjourRegistrar?.stop()
-        bonjourRegistrar = nil
+        stopBonjour()
         if let listener = self.listener {
             listener.cancel()
             self.listener = nil
@@ -66,8 +67,9 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
     }
 
     func stopPublishing() {
-        bonjourRegistrar?.stop()
-        bonjourRegistrar = nil
+        stopBonjour()
+        pathMonitor?.cancel()
+        pathMonitor = nil
         listener?.cancel()
         listener = nil
         let open = connectionsLock.withLock { () -> [NWConnection] in
@@ -114,6 +116,7 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
             // accepting connections to the advertised IP (connection refused). Bonjour is still
             // advertised only on the preferred interface via BonjourSingleInterfaceRegistrar.
             let parameters = NWParameters.tcp
+            parameters.includePeerToPeer = AppTrafficConfiguration.peerToPeerEnabled
             let listener = try NWListener(using: parameters, on: port)
 
             // Do not set listener.service — it advertises on all interfaces (e.g. bridge101).
@@ -123,22 +126,12 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
                 switch state {
                 case .ready:
                     print("Network listener ready on interface: \(preferredInterface.name)")
-                    // Register Bonjour on this interface only so discovery returns only en0's IP
-                    let registrar = BonjourSingleInterfaceRegistrar()
-                    let domain = AppTrafficConfiguration.netServiceDomain
-                    if registrar.start(
-                        interfaceName: preferredInterface.name,
-                        name: AppTrafficConfiguration.netServiceName,
-                        type: AppTrafficConfiguration.netServiceType,
-                        domain: domain,
-                        port: AppTrafficConfiguration.netServicePort
-                    ) {
-                        self?.bonjourRegistrar = registrar
-                    }
+                    self?.registerBonjour(preferred: preferredInterface.name)
+                    self?.startPathMonitor()
                     Task { @MainActor in
                         TrafficListenerStatus.shared.update(
                             summary: "Listening",
-                            detail: "\(preferredInterface.name) • port \(AppTrafficConfiguration.portString)",
+                            detail: "\(self?.reachabilityDescription(preferred: preferredInterface.name) ?? preferredInterface.name) • port \(AppTrafficConfiguration.portString)",
                             isReady: true
                         )
                     }
@@ -181,6 +174,69 @@ final class AppTrafficPublisher: NSObject, @unchecked Sendable {
             print("Failed to start listener: \(error)")
             self.restartAfterDelay()
         }
+    }
+
+    private func stopBonjour() {
+        bonjourRegistrars.forEach { $0.stop() }
+        bonjourRegistrars.removeAll()
+    }
+
+    /// Advertises on the preferred interface, any USB/Personal Hotspot tether interface, and peer-to-peer (AWDL).
+    private func registerBonjour(preferred: String) {
+        stopBonjour()
+        let name = AppTrafficConfiguration.netServiceName
+        let type = AppTrafficConfiguration.netServiceType
+        let domain = AppTrafficConfiguration.netServiceDomain
+        let port = AppTrafficConfiguration.netServicePort
+
+        var names = [preferred]
+        for tether in NetworkInterfaceDetector.getTetherInterfaces() where !names.contains(tether.name) {
+            names.append(tether.name)
+        }
+        for ifName in names {
+            let registrar = BonjourSingleInterfaceRegistrar()
+            if registrar.start(interfaceName: ifName, name: name, type: type, domain: domain, port: port) {
+                bonjourRegistrars.append(registrar)
+            }
+        }
+        if AppTrafficConfiguration.peerToPeerEnabled {
+            let registrar = BonjourSingleInterfaceRegistrar()
+            if registrar.start(interfaceIndex: BonjourSingleInterfaceRegistrar.peerToPeerInterfaceIndex,
+                               name: name, type: type, domain: domain, port: port) {
+                bonjourRegistrars.append(registrar)
+            }
+        }
+    }
+
+    private func reachabilityDescription(preferred: String) -> String {
+        var parts = [preferred]
+        parts += NetworkInterfaceDetector.getTetherInterfaces().map { "\($0.name) (USB tether)" }
+        if AppTrafficConfiguration.peerToPeerEnabled { parts.append("peer-to-peer") }
+        return parts.joined(separator: ", ")
+    }
+
+    private static func signature() -> String {
+        NetworkInterfaceDetector.getActiveInterfaces()
+            .map { "\($0.name):\($0.ipv4Addresses.joined(separator: ","))" }
+            .sorted().joined(separator: ";")
+    }
+
+    /// Re-registers Bonjour when interfaces appear or disappear (e.g. a tethered iPhone is plugged in).
+    private func startPathMonitor() {
+        guard pathMonitor == nil else { return }
+        interfaceSignature = Self.signature()
+        let monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { [weak self] _ in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                guard let self, self.listener != nil else { return }
+                let current = Self.signature()
+                guard current != self.interfaceSignature else { return }
+                self.interfaceSignature = current
+                self.startPublishing()
+            }
+        }
+        monitor.start(queue: DispatchQueue(label: "AppTrafficPublisher.pathMonitor"))
+        pathMonitor = monitor
     }
 
     private func setupConnection(_ connection: NWConnection) {

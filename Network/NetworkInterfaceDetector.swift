@@ -92,8 +92,25 @@ class NetworkInterfaceDetector {
         return interfaces
     }
 
+    /// iOS Personal Hotspot (USB/Bluetooth/Wi-Fi) hands out addresses in 172.20.10.0/28.
+    static func isTetherAddress(_ address: String) -> Bool {
+        let parts = address.split(separator: ".").compactMap { Int($0) }
+        guard parts.count == 4, parts[0] == 172, parts[1] == 20, parts[2] == 10 else { return false }
+        return (0...15).contains(parts[3])
+    }
+
+    static func tetherInterfaces(in interfaces: [NetworkInterface]) -> [NetworkInterface] {
+        interfaces.filter { $0.ipv4Addresses.contains(where: isTetherAddress) }
+    }
+
+    static func getTetherInterfaces() -> [NetworkInterface] {
+        tetherInterfaces(in: getActiveInterfaces())
+    }
+
     static func getPreferredInterface() -> NetworkInterface? {
-        let interfaces = getActiveInterfaces()
+        let all = getActiveInterfaces()
+        let nonTether = all.filter { !$0.ipv4Addresses.contains(where: isTetherAddress) }
+        let interfaces = nonTether.isEmpty ? all : nonTether
 
         if let ethernetInterface = interfaces.first(where: { $0.type == .ethernet }) {
             return ethernetInterface

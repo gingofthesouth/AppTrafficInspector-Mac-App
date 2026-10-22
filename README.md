@@ -13,7 +13,7 @@ App Traffic Inspector is a native macOS network debugging tool for iOS developme
 - Device and project separation
 - Bounded per-device retention: 1,000 transactions and 250 MiB of decoded request/response bodies
 - No proxy configuration or certificate installation required
-- Bonjour-based automatic discovery
+- Bonjour-based automatic discovery, advertised on the main interface, any USB Personal Hotspot interface (`172.20.10.x`) and peer-to-peer Wi-Fi (AWDL, toggle in Settings), so iPhones on guest networks that block mDNS can still connect
 - **MCP (Model Context Protocol) server** — expose redacted transaction data and tools to local MCP clients
 
 ## Installation

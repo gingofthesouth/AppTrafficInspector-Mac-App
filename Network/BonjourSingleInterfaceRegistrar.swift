@@ -64,10 +64,16 @@ final class BonjourSingleInterfaceRegistrar {
     ///   - port: Port in host byte order
     /// - Returns: true if registration was started (callback may still report failure)
     func start(interfaceName: String, name: String, type: String, domain: String, port: UInt16) -> Bool {
-        stop()
-
         let ifIndex = interfaceName.withCString { if_nametoindex($0) }
         guard ifIndex != 0 else { return false }
+        return start(interfaceIndex: ifIndex, name: name, type: type, domain: domain, port: port)
+    }
+
+    /// Interface index for peer-to-peer (AWDL) registration (kDNSServiceInterfaceIndexP2P, -3).
+    static let peerToPeerInterfaceIndex = UInt32(bitPattern: -3)
+
+    func start(interfaceIndex ifIndex: UInt32, name: String, type: String, domain: String, port: UInt16) -> Bool {
+        stop()
 
         var ref: DNSServiceRef?
         let portBigEndian = port.bigEndian

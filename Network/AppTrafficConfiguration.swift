@@ -14,6 +14,10 @@ class AppTrafficConfiguration: NSObject {
         return ProcessInfo.processInfo.hostName.components(separatedBy: ".").first ?? "AppTraffic"
     }
     static let netServicePort: UInt16 = 43435
+    /// Also advertise and accept over peer-to-peer Wi-Fi (AWDL) so discovery works on networks that block mDNS.
+    static var peerToPeerEnabled: Bool {
+        UserDefaults.standard.object(forKey: "peerToPeerEnabled") as? Bool ?? true
+    }
     static let portString: String = String(netServicePort)
     static let maximumTransactionBytes = 25 * 1024 * 1024
 }
